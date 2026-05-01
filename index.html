@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chess Review</title>
+<title>ChessReview — Stop Repeating Blunders</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Inconsolata:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 <style>
 :root{
-  --bg0:#0f0e0c; --bg1:#181612; --bg2:#222018; --bg3:#2d2a23; --bg4:#38342b;
+  --bg0:#09090f; --bg1:#0f0f17; --bg2:#16161f; --bg3:#1e1e2a; --bg4:#26263a;
   --b:rgba(255,255,255,.06); --b2:rgba(255,255,255,.13);
-  --t0:#f4ede4; --t1:#c9c0b4; --t2:#8a8074; --t3:#55504a;
-  --g:#7fc44a; --g2:#6aad38; --r:#c03030;
+  --t0:#ededf4; --t1:#b8b8d0; --t2:#7070a0; --t3:#40405a;
+  --g:#6366f1; --g2:#4f46e5; --r:#c03030;
   --sq-l:#f0d9b5; --sq-d:#b58863;
   --hi-from:rgba(15,200,60,.5); --hi-to:rgba(15,200,60,.75);
-  --hi-sel:rgba(255,220,0,.55);
+  --hi-sel:rgba(120,120,255,.5);
   --fu:'Sora',sans-serif; --fm:'Inconsolata',monospace;
 }
 /* Global tabular nums for all monospace number displays */
@@ -31,24 +31,24 @@ button{font-family:var(--fu);cursor:pointer;}
 /* ── HEADER ─────────────────────────── */
 .hdr{height:52px;background:var(--bg1);border-bottom:1px solid var(--b);display:flex;align-items:center;padding:0 18px;gap:12px;flex-shrink:0;position:relative;z-index:50;}
 .logo{display:flex;align-items:center;gap:9px;}
-.logo-icon{font-size:24px;filter:drop-shadow(0 0 8px rgba(127,196,74,.4));}
+.logo-icon{font-size:24px;filter:drop-shadow(0 0 10px rgba(99,102,241,.5));}
 .logo-name{font-size:17px;font-weight:700;letter-spacing:-.5px;}
 .logo-name em{color:var(--g);font-style:normal;}
 .mode-toggle{display:flex;background:var(--bg3);border:1px solid var(--b);border-radius:20px;padding:3px;gap:2px;margin-left:6px;}
 .mode-btn{border:none;background:transparent;color:var(--t2);padding:4px 13px;border-radius:16px;font-size:11px;font-weight:600;transition:all .2s;letter-spacing:.3px;}
-.mode-btn.active{background:var(--bg4);color:var(--t0);box-shadow:0 1px 4px rgba(0,0,0,.4);}
+.mode-btn.active{background:#6366f1;color:#fff;box-shadow:0 1px 8px rgba(99,102,241,.4);}
 .hdr-spacer{flex:1;}
 .eng-chip{display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--b2);border-radius:14px;padding:4px 11px;font-size:10px;color:var(--t2);font-family:var(--fm);}
 .eng-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .dot-ok{background:var(--g);box-shadow:0 0 5px var(--g);}
 .dot-busy{background:#e8c13a;box-shadow:0 0 5px #e8c13a;animation:pls 1s infinite;}
 .dot-off{background:var(--t3);}
-.dot-sf{background:#7fd4ff;box-shadow:0 0 5px #7fd4ff;}
+.dot-sf{background:#a5b4fc;box-shadow:0 0 5px #a5b4fc;}
 @keyframes pls{0%,100%{opacity:1;}50%{opacity:.25;}}
 .hbtn{background:transparent;border:1px solid var(--b2);color:var(--t1);border-radius:var(--rs);padding:5px 13px;font-size:11px;font-weight:500;transition:all .15s;}
 .hbtn:hover{background:var(--bg3);color:var(--t0);}
-.hbtn-g{background:var(--g);border-color:transparent;color:#fff;font-weight:600;}
-.hbtn-g:hover{background:var(--g2);}
+.hbtn-g{background:#6366f1;border-color:transparent;color:#fff;font-weight:600;}
+.hbtn-g:hover{background:#4f46e5;box-shadow:0 4px 14px rgba(99,102,241,.4);}
 .hbtn-r{background:var(--r);border-color:transparent;color:#ffcccc;display:none;}
 
 /* ── PAGE ───────────────────────────── */
@@ -61,15 +61,15 @@ button{font-family:var(--fu);cursor:pointer;}
 .ss{padding:13px 13px;border-bottom:1px solid var(--b);}
 .slbl{font-size:8.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-bottom:7px;}
 .pgn-ta{width:100%;background:var(--bg0);border:1px solid var(--b);border-radius:var(--rs);color:var(--t1);font-family:var(--fm);font-size:10px;line-height:1.7;padding:8px 10px;resize:none;height:88px;outline:none;transition:border-color .15s;}
-.pgn-ta:focus{border-color:var(--g);}
+.pgn-ta:focus{border-color:#6366f1;box-shadow:0 0 0 2px rgba(99,102,241,.12);}
 .pgn-ta::placeholder{color:var(--t3);}
-.sbtn-main{width:100%;background:var(--g);border:none;color:#fff;border-radius:var(--rs);padding:9px;font-size:12px;font-weight:600;transition:background .15s;margin-top:8px;}
-.sbtn-main:hover{background:var(--g2);}
+.sbtn-main{width:100%;background:#6366f1;border:none;color:#fff;border-radius:var(--rs);padding:9px;font-size:12px;font-weight:600;transition:background .15s;margin-top:8px;}
+.sbtn-main:hover{background:#4f46e5;}
 .depth-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
 .depth-grid-6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;}
 .db{background:var(--bg2);border:1px solid var(--b);color:var(--t2);border-radius:var(--rs);padding:7px 4px;font-size:10px;text-align:center;line-height:1.4;transition:all .15s;}
 .db:hover{background:var(--bg3);color:var(--t1);}
-.db.sel{background:var(--bg4);border-color:var(--g);color:var(--g);font-weight:600;}
+.db.sel{background:var(--bg4);border-color:#6366f1;color:#818cf8;font-weight:600;}
 .db small{font-size:8px;opacity:.6;display:block;}
 .depth-note{font-size:9px;color:var(--t3);text-align:center;margin-top:5px;}
 .sample{background:var(--bg2);border:1px solid var(--b);color:var(--t1);border-radius:var(--rs);padding:8px 9px;font-size:10.5px;text-align:left;display:flex;align-items:center;gap:7px;width:100%;transition:all .15s;margin-bottom:5px;}
@@ -79,18 +79,18 @@ button{font-family:var(--fu);cursor:pointer;}
 .sample-inf{display:flex;flex-direction:column;gap:1px;}
 .sample-n{font-weight:500;font-size:10.5px;}
 .sample-y{font-size:9px;color:var(--t3);font-family:var(--fm);}
-.sf-box{background:linear-gradient(135deg,rgba(13,30,50,.9),rgba(20,50,80,.6));border:1px solid rgba(80,150,220,.2);border-radius:var(--r);padding:11px;display:flex;flex-direction:column;gap:7px;}
-.sf-box-t{font-size:11px;font-weight:600;color:#7fd4ff;}
+.sf-box{background:linear-gradient(135deg,rgba(13,10,40,.9),rgba(20,15,60,.6));border:1px solid rgba(99,102,241,.2);border-radius:var(--r);padding:11px;display:flex;flex-direction:column;gap:7px;}
+.sf-box-t{font-size:11px;font-weight:600;color:#a5b4fc;}
 .sf-box-s{font-size:9.5px;color:#5a7a9a;line-height:1.5;}
-.sf-btn{background:rgba(80,160,255,.12);border:1px solid rgba(80,160,255,.25);color:#7fd4ff;border-radius:var(--rs);padding:7px;font-size:11px;font-weight:600;width:100%;transition:all .15s;}
-.sf-btn:hover:not(:disabled){background:rgba(80,160,255,.22);}
+.sf-btn{background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.25);color:#a5b4fc;border-radius:var(--rs);padding:7px;font-size:11px;font-weight:600;width:100%;transition:all .15s;}
+.sf-btn:hover:not(:disabled){background:rgba(99,102,241,.22);}
 .sf-btn:disabled{opacity:.5;cursor:not-allowed;}
 .prog-box{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:10px;display:none;flex-direction:column;gap:6px;}
 .prog-box.vis{display:flex;}
 .prog-hd{display:flex;justify-content:space-between;font-size:11px;color:var(--t1);}
 .prog-hd span{font-family:var(--fm);font-size:10px;color:var(--g);}
 .prog-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
-.prog-fill{height:100%;background:var(--g);width:0%;transition:width .1s;border-radius:2px;}
+.prog-fill{height:100%;background:#6366f1;width:0%;transition:width .1s;border-radius:2px;}
 .prog-sub{font-size:9px;color:var(--t3);font-family:var(--fm);line-height:1.4;}
 .st{font-size:10px;color:var(--t3);padding:6px 13px;text-align:center;}
 
@@ -102,7 +102,7 @@ button{font-family:var(--fu);cursor:pointer;}
 .cap-piece{font-size:13px;line-height:1;display:inline-block;}
 .cap-piece-w{color:#fff8ee;text-shadow:0 0 2px #000;}
 .cap-piece-b{color:#1a1208;text-shadow:0 0 2px rgba(255,255,255,.2);}
-.cap-adv{font-size:10px;font-family:var(--fm);color:var(--g);font-weight:600;margin-left:4px;}
+.cap-adv{font-size:10px;font-family:var(--fm);color:#818cf8;font-weight:600;margin-left:4px;}
 .pav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;border:2px solid transparent;}
 .pav-w{background:rgba(240,220,180,.12);border-color:rgba(240,220,180,.18);}
 .pav-b{background:rgba(20,18,14,.6);border-color:rgba(255,255,255,.07);}
@@ -116,7 +116,7 @@ button{font-family:var(--fu);cursor:pointer;}
 .ev-col{display:flex;flex-direction:column;align-items:center;gap:4px;}
 .ev-num{font-family:var(--fm);font-size:11px;color:var(--t2);text-align:center;min-width:38px;}
 .ev-bar{width:15px;background:#0a0908;border-radius:5px;position:relative;border:1px solid rgba(255,255,255,.07);overflow:hidden;}
-.ev-white{position:absolute;bottom:0;width:100%;background:linear-gradient(180deg,#fff5e0,#e8dfc8);transition:height .45s cubic-bezier(.4,0,.2,1);}
+.ev-white{position:absolute;bottom:0;width:100%;background:linear-gradient(180deg,#f0f0ff,#d8d8f4);transition:height .45s cubic-bezier(.4,0,.2,1);}
 .rank-col{display:flex;flex-direction:column;justify-content:flex-start;padding-right:4px;padding-bottom:20px;}
 .rank-n{height:var(--sq);display:flex;align-items:center;font-size:9px;font-family:var(--fm);color:var(--t3);}
 .board-inner{display:flex;flex-direction:column;}
@@ -172,7 +172,7 @@ button{font-family:var(--fu);cursor:pointer;}
 .ic-be{background:#5ca65c;color:#fff;}.ic-ex{background:#89c458;color:#fff;}.ic-go{background:#b8d44a;color:#1a2a00;}
 .ic-in{background:#e8c13a;color:#3a2a00;}.ic-mk{background:#e8853a;color:#fff;}.ic-ms{background:#d44a4a;color:#fff;}.ic-bl{background:#c0392b;color:#fff;}
 .vc-br{color:#1baca6;}.vc-gt{color:#6e85d4;}.vc-bk{color:#a08060;}.vc-be{color:#5ca65c;}
-.vc-ex{color:#89c458;}.vc-go{color:#c4d44a;}.vc-in{color:#e8c13a;}.vc-mk{color:#e8853a;}.vc-ms{color:#d44a4a;}.vc-bl{color:#c0392b;}
+.vc-ex{color:#89c458;}.vc-go{color:#c4d44a;}.vc-in{color:#a5b4fc;}.vc-mk{color:#e8853a;}.vc-ms{color:#d44a4a;}.vc-bl{color:#c0392b;}
 .rt-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 .rt-c{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:8px 10px;text-align:center;}
 .rt-l{font-size:8.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
@@ -238,15 +238,15 @@ button{font-family:var(--fu);cursor:pointer;}
 /* ── EXPLORE MODE ──────────────────────────────────── */
 .explore-banner{
   display:none;width:100%;max-width:560px;
-  background:linear-gradient(135deg,rgba(255,180,0,.12),rgba(255,140,0,.08));
-  border:1px solid rgba(255,180,0,.3);border-radius:var(--r);
-  padding:7px 12px;font-size:11px;color:#e8c13a;
+  background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(124,58,237,.08));
+  border:1px solid rgba(99,102,241,.25);border-radius:var(--r);
+  padding:7px 12px;font-size:11px;color:#a5b4fc;
   align-items:center;gap:8px;flex-wrap:wrap;order:5;
 }
 .explore-banner.vis{display:flex;}
 .explore-banner strong{color:#f5d060;}
-.btn-exit-explore{background:rgba(255,180,0,.18);border:1px solid rgba(255,180,0,.4);color:#f5d060;border-radius:var(--rs);padding:4px 10px;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--fu);margin-left:auto;}
-.btn-exit-explore:hover{background:rgba(255,180,0,.3);}
+.btn-exit-explore{background:rgba(99,102,241,.18);border:1px solid rgba(99,102,241,.35);color:#a5b4fc;border-radius:var(--rs);padding:4px 10px;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--fu);margin-left:auto;}
+.btn-exit-explore:hover{background:rgba(99,102,241,.3);}
 .explore-eval-change{font-family:var(--fm);font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;}
 .explore-eval-change.pos{background:rgba(100,200,100,.2);color:#6ecc6e;}
 .explore-eval-change.neg{background:rgba(200,80,80,.2);color:#e06060;}
@@ -257,10 +257,10 @@ button{font-family:var(--fu);cursor:pointer;}
   align-items:center;gap:6px;order:6;
 }
 .explore-nav-row.vis{display:flex;}
-.nb-explore{background:var(--bg3);border:1px solid rgba(255,180,0,.3);color:#e8c13a;border-radius:var(--rs);padding:5px 13px;font-size:11px;font-weight:600;cursor:pointer;transition:all .12s;font-family:var(--fu);}
+.nb-explore{background:var(--bg3);border:1px solid rgba(99,102,241,.25);color:#a5b4fc;border-radius:var(--rs);padding:5px 13px;font-size:11px;font-weight:600;cursor:pointer;transition:all .12s;font-family:var(--fu);}
 .nb-explore:hover{background:var(--bg4);}
 .nb-explore:disabled{opacity:.35;cursor:not-allowed;}
-.explore-move-lbl{flex:1;text-align:center;font-family:var(--fm);font-size:12px;color:#e8c13a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.explore-move-lbl{flex:1;text-align:center;font-family:var(--fm);font-size:12px;color:#a5b4fc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .intro-ico{font-size:64px;opacity:.15;line-height:1;}
 .intro-h{font-size:26px;font-weight:700;color:var(--t1);}
 .intro-s{font-size:12px;color:var(--t3);max-width:270px;line-height:1.8;}
@@ -272,20 +272,20 @@ button{font-family:var(--fu);cursor:pointer;}
 <div class="overlay" id="overlay" onclick="if(event.target===this)closeCustomize()">
   <div class="modal">
     <div class="modal-hd">
-      <div class="modal-title">🎨 Personalizar tablero</div>
+      <div class="modal-title">🎨 Customize Board</div>
       <button class="modal-x" onclick="closeCustomize()">✕</button>
     </div>
     <div class="modal-body">
       <div class="opt-section">
-        <div class="opt-title">Tema del tablero</div>
+        <div class="opt-title">Board Theme</div>
         <div class="theme-grid" id="theme-grid"></div>
       </div>
       <div class="opt-section">
-        <div class="opt-title">Estilo de piezas</div>
+        <div class="opt-title">Piece Style</div>
         <div class="piece-grid" id="piece-grid"></div>
       </div>
       <div class="opt-section">
-        <div class="opt-title">Tamaño del tablero</div>
+        <div class="opt-title">Board Size</div>
         <div class="size-row">
           <span style="font-size:11px;color:var(--t2);">56px</span>
           <input type="range" class="size-slider" id="size-slider" min="56" max="82" value="68" oninput="onSizeChange(this.value)">
@@ -297,23 +297,108 @@ button{font-family:var(--fu);cursor:pointer;}
   </div>
 </div>
 
+
+<!-- ═══════════════ LANDING PAGE ═══════════════ -->
+<div class="landing" id="landing-page">
+  <!-- Nav -->
+  <div class="land-nav">
+    <div class="land-logo">
+      <span class="land-logo-ico">◈</span>
+      <span><em>Chess</em>Review</span>
+    </div>
+    <div class="land-nav-r">
+      <button class="land-nav-link" onclick="loadSampleAndLaunch('opera')">Demo</button>
+      <button class="land-nav-link" onclick="showPricing()">Pricing</button>
+      <button class="land-nav-btn" onclick="launchApp()">Open App →</button>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="land-hero">
+    <div class="land-badge">
+      <span class="land-badge-dot"></span>
+      Free · No account required · Powered by Stockfish
+    </div>
+    <h1 class="land-h1">Stop repeating<br>the same <em>blunders.</em></h1>
+    <p class="land-sub">Analyze your chess games with engine-level precision. Find your blunders, discover winning moves you missed, and track your accuracy — just like the pros.</p>
+
+    <div class="land-cta-box">
+      <div class="land-pgn-lbl">Paste your PGN</div>
+      <textarea class="land-pgn" id="land-pgn" placeholder='[White "You"][Black "Opponent"]
+1.e4 e5 2.Nf3 Nc6 3.Bb5 ...'></textarea>
+      <div class="land-cta-row">
+        <button class="land-cta-main" onclick="launchWithPGN()">▶ Analyze My Game — Free</button>
+        <button class="land-cta-alt" onclick="loadSampleAndLaunch('immortal')">Try a sample</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="land-stats">
+    <div class="land-stat"><div class="land-stat-n">3,399</div><div class="land-stat-l">Opening variants tracked</div></div>
+    <div class="land-stat"><div class="land-stat-n">10</div><div class="land-stat-l">Move categories · Brilliant to Blunder</div></div>
+    <div class="land-stat"><div class="land-stat-n">100%</div><div class="land-stat-l">Free to analyze</div></div>
+    <div class="land-stat"><div class="land-stat-n">11</div><div class="land-stat-l">Piece styles available</div></div>
+  </div>
+
+  <!-- Features -->
+  <div class="land-features">
+    <div class="land-feat">
+      <span class="land-feat-ico">🎯</span>
+      <div class="land-feat-t">Accuracy Score</div>
+      <div class="land-feat-s">Get precise accuracy percentages for both players using the same WDL formula as Chess.com — calibrated against Stockfish data.</div>
+    </div>
+    <div class="land-feat">
+      <span class="land-feat-ico">💡</span>
+      <div class="land-feat-t">Best Move Arrow</div>
+      <div class="land-feat-s">See exactly what the engine recommends at every position. Navigate moves and explore alternative variations freely.</div>
+    </div>
+    <div class="land-feat">
+      <span class="land-feat-ico">📖</span>
+      <div class="land-feat-t">Opening Recognition</div>
+      <div class="land-feat-s">Automatically identifies your opening from a database of 3,399 ECO variants — from Ruy López to the Sicilian Najdorf.</div>
+    </div>
+    <div class="land-feat">
+      <span class="land-feat-ico">🔍</span>
+      <div class="land-feat-t">Variation Explorer</div>
+      <div class="land-feat-s">Click any piece during analysis to explore what would have happened. The engine evaluates each variation in real time.</div>
+    </div>
+    <div class="land-feat">
+      <span class="land-feat-ico">⚡</span>
+      <div class="land-feat-t">Stockfish Engine</div>
+      <div class="land-feat-s">Upgrade to Stockfish depth 14-18 for professional-level analysis. Loads once per session, runs entirely in your browser.</div>
+    </div>
+    <div class="land-feat">
+      <span class="land-feat-ico">♟</span>
+      <div class="land-feat-t">Play vs Engine</div>
+      <div class="land-feat-s">Train against Stockfish at 6 difficulty levels — from Beginner to Master. Drag pieces or click to move.</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="land-footer">
+    <span>◈ <strong>ChessReview</strong> · Free chess game analysis</span>
+    <span>Built with Stockfish · CBurnett pieces (CC-BY-SA) · Lichess opening database</span>
+  </div>
+</div>
+
 <!-- HEADER -->
 <div class="hdr">
   <div class="logo">
-    <span class="logo-icon">♛</span>
-    <span class="logo-name">Chess<em>Review</em></span>
+    <span class="logo-icon">◈</span>
+    <span class="logo-name"><em>Chess</em>Review</span>
   </div>
   <div class="mode-toggle">
-    <button class="mode-btn active" id="mode-analyze" onclick="setMode('analyze')">◀ Análisis</button>
-    <button class="mode-btn" id="mode-play" onclick="setMode('play')">▶ Jugar</button>
+    <button class="mode-btn active" id="mode-analyze" onclick="setMode('analyze')">◀ Analysis</button>
+    <button class="mode-btn" id="mode-play" onclick="setMode('play')">▶ Play</button>
   </div>
   <div class="hdr-spacer"></div>
-  <div class="eng-chip"><div class="eng-dot dot-ok" id="eng-dot"></div><span id="eng-lbl">Motor listo</span></div>
-  <button class="hbtn" onclick="openCustomize()">🎨 Personalizar</button>
-  <button class="hbtn" onclick="doFlip()">⇅ Girar</button>
+  <div class="eng-chip"><div class="eng-dot dot-ok" id="eng-dot"></div><span id="eng-lbl">Engine ready</span></div>
+  <button class="hbtn" onclick="openCustomize()">🎨 Customize</button>
+  <button class="hbtn" onclick="doFlip()">⇅ Flip</button>
   <button class="hbtn" onclick="doReset()">✕</button>
-  <button class="hbtn hbtn-r" id="btn-cancel" onclick="cancelAnalysis()">⏹ Cancelar</button>
-  <button class="hbtn hbtn-g" id="btn-analyze" onclick="doAnalyze()">▶ Analizar</button>
+  <button class="hbtn hbtn-r" id="btn-cancel" onclick="cancelAnalysis()">⏹ Cancel</button>
+  <button class="hbtn hbtn-g" id="btn-analyze" onclick="doAnalyze()">▶ Analyze</button>
 </div>
 
 <div class="page">
@@ -321,82 +406,82 @@ button{font-family:var(--fu);cursor:pointer;}
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="ss">
-      <div class="slbl">Partida PGN</div>
-      <textarea class="pgn-ta" id="pgn-in" placeholder="[White &quot;Jugador&quot;]&#10;1.e4 e5 2.Nf3 ..."></textarea>
-      <button class="sbtn-main" onclick="doAnalyze()">▶ Analizar con Stockfish</button>
+      <div class="slbl">Game PGN</div>
+      <textarea class="pgn-ta" id="pgn-in" placeholder="[White &quot;Player&quot;]&#10;1.e4 e5 2.Nf3 ..."></textarea>
+      <button class="sbtn-main" onclick="doAnalyze()">▶ Analyze with Stockfish</button>
     </div>
     <div class="ss">
-      <div class="slbl">Profundidad</div>
+      <div class="slbl">Depth</div>
       <div class="depth-grid">
-        <button class="db" onclick="setDepth(3,this)">Rápido<small>depth 3</small></button>
-        <button class="db sel" onclick="setDepth(5,this)">Estándar<small>depth 5</small></button>
-        <button class="db" onclick="setDepth(7,this)">Profundo<small>depth 7</small></button>
+        <button class="db" onclick="setDepth(3,this)">Fast<small>depth 3</small></button>
+        <button class="db sel" onclick="setDepth(5,this)">Standard<small>depth 5</small></button>
+        <button class="db" onclick="setDepth(7,this)">Deep<small>depth 7</small></button>
       </div>
-      <div class="depth-note" id="depth-note">Motor interno · ~1-3s/jugada</div>
+      <div class="depth-note" id="depth-note">Internal engine · ~1-3s/move</div>
     </div>
     <div class="ss">
-      <div class="slbl">Partidas clásicas</div>
-      <button class="sample" onclick="loadSample('immortal')"><em>⚡</em><span class="sample-inf"><span class="sample-n">La Partida Inmortal</span><span class="sample-y">Anderssen vs Kieseritzky · 1851</span></span></button>
-      <button class="sample" onclick="loadSample('opera')"><em>♟</em><span class="sample-inf"><span class="sample-n">La Partida de la Ópera</span><span class="sample-y">Morphy vs Duke Karl · 1858</span></span></button>
-      <button class="sample" onclick="loadSample('evergreen')"><em>🌿</em><span class="sample-inf"><span class="sample-n">La Partida Imperecedera</span><span class="sample-y">Anderssen vs Dufresne · 1852</span></span></button>
-      <button class="sample" onclick="loadSample('fischer')"><em>👑</em><span class="sample-inf"><span class="sample-n">El Juego del Siglo</span><span class="sample-y">Fischer vs Byrne · 1956</span></span></button>
+      <div class="slbl">Classic Games</div>
+      <button class="sample" onclick="loadSample('immortal')"><em>⚡</em><span class="sample-inf"><span class="sample-n">The Immortal Game</span><span class="sample-y">Anderssen vs Kieseritzky · 1851</span></span></button>
+      <button class="sample" onclick="loadSample('opera')"><em>♟</em><span class="sample-inf"><span class="sample-n">The Opera Game</span><span class="sample-y">Morphy vs Duke Karl · 1858</span></span></button>
+      <button class="sample" onclick="loadSample('evergreen')"><em>🌿</em><span class="sample-inf"><span class="sample-n">The Evergreen Game</span><span class="sample-y">Anderssen vs Dufresne · 1852</span></span></button>
+      <button class="sample" onclick="loadSample('fischer')"><em>👑</em><span class="sample-inf"><span class="sample-n">The Game of the Century</span><span class="sample-y">Fischer vs Byrne · 1956</span></span></button>
     </div>
     <div class="ss" id="sf-section">
-      <div class="slbl">Motor avanzado</div>
+      <div class="slbl">Advanced Engine</div>
       <div class="sf-box">
         <div class="sf-box-t">⚡ Stockfish 10</div>
-        <div class="sf-box-s">Análisis de nivel profesional. Requiere conexión a internet para la primera carga.</div>
-        <button class="sf-btn" id="sf-btn" onclick="loadStockfish()">Descargar Stockfish (~3 MB)</button>
-        <div style="font-size:9px;color:#3a5a7a;text-align:center;">Se carga una vez por sesión</div>
+        <div class="sf-box-s">Professional-level analysis. Requires internet for the first load.</div>
+        <button class="sf-btn" id="sf-btn" onclick="loadStockfish()">Load Stockfish (~3 MB)</button>
+        <div style="font-size:9px;color:#3a5a7a;text-align:center;">Loaded once per session</div>
       </div>
     </div>
     <div class="ss">
       <div class="prog-box" id="prog-box">
-        <div class="prog-hd"><span id="prog-txt">Analizando…</span><span id="prog-pct">0%</span></div>
+        <div class="prog-hd"><span id="prog-txt">Analyzing…</span><span id="prog-pct">0%</span></div>
         <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
         <div class="prog-sub" id="prog-sub"></div>
       </div>
-      <div class="st" id="st-msg">Carga una partida o usa el modo Jugar para entrenar.</div>
+      <div class="st" id="st-msg">Load a game or switch to Play mode to train.</div>
     </div>
     <div class="ss" id="play-info" style="display:none;">
-      <div class="slbl">Modo jugar</div>
-      <div style="font-size:10px;color:var(--t2);line-height:1.5;margin-bottom:8px;">Mueve piezas con clic o arrastrando. El motor responde automáticamente si Stockfish está activo.</div>
+      <div class="slbl">Play Mode</div>
+      <div style="font-size:10px;color:var(--t2);line-height:1.5;margin-bottom:8px;">Click or drag pieces to move. The engine responds automatically if Stockfish is loaded.</div>
 
-      <div class="slbl" style="margin-top:4px;">Tu color</div>
+      <div class="slbl" style="margin-top:4px;">Your color</div>
       <div style="display:flex;gap:6px;margin-bottom:8px;">
-        <button class="db sel" id="play-color-w" onclick="setPlayColor('w',this)" style="flex:1;">♔ Blancas</button>
-        <button class="db" id="play-color-b" onclick="setPlayColor('b',this)" style="flex:1;">♚ Negras</button>
+        <button class="db sel" id="play-color-w" onclick="setPlayColor('w',this)" style="flex:1;">♔ White</button>
+        <button class="db" id="play-color-b" onclick="setPlayColor('b',this)" style="flex:1;">♚ Black</button>
       </div>
 
-      <div class="slbl">Nivel del rival (Stockfish)</div>
+      <div class="slbl">Bot Level (Stockfish)</div>
       <div class="depth-grid-6" style="margin-bottom:8px;">
-        <button class="db" onclick="setBotLevel(1,this)">Novato<small>depth 1</small></button>
-        <button class="db" onclick="setBotLevel(3,this)">Fácil<small>depth 3</small></button>
+        <button class="db" onclick="setBotLevel(1,this)">Beginner<small>depth 1</small></button>
+        <button class="db" onclick="setBotLevel(3,this)">Easy<small>depth 3</small></button>
         <button class="db sel" id="bot-level-sel" onclick="setBotLevel(6,this)">Normal<small>depth 6</small></button>
-        <button class="db" onclick="setBotLevel(10,this)">Difícil<small>depth 10</small></button>
-        <button class="db" onclick="setBotLevel(14,this)">Experto<small>depth 14</small></button>
-        <button class="db" onclick="setBotLevel(18,this)">Maestro<small>depth 18</small></button>
+        <button class="db" onclick="setBotLevel(10,this)">Hard<small>depth 10</small></button>
+        <button class="db" onclick="setBotLevel(14,this)">Expert<small>depth 14</small></button>
+        <button class="db" onclick="setBotLevel(18,this)">Master<small>depth 18</small></button>
       </div>
       <div class="depth-note" id="bot-note" style="margin-bottom:8px;">Normal · Stockfish depth 6</div>
 
       <div id="bot-status" style="font-size:10px;color:var(--t2);min-height:14px;margin-bottom:6px;font-family:var(--fm);"></div>
 
-      <button class="sbtn-main" onclick="resetLiveGame()" style="margin-bottom:5px;">↺ Nueva partida</button>
-      <button class="sbtn-main" style="background:var(--bg3);color:var(--t1);border:1px solid var(--b2);" onclick="undoLiveMove()">⟵ Deshacer</button>
+      <button class="sbtn-main" onclick="resetLiveGame()" style="margin-bottom:5px;">↺ New Game</button>
+      <button class="sbtn-main" style="background:var(--bg3);color:var(--t1);border:1px solid var(--b2);" onclick="undoLiveMove()">⟵ Undo</button>
     </div>
   </div>
 
   <!-- CENTER BOARD -->
   <div class="center" id="center">
     <div class="intro" id="intro">
-      <div class="intro-ico">♜</div>
-      <div class="intro-h">Game Review</div>
-      <div class="intro-s">Carga un PGN y analiza tu partida, o cambia al modo Jugar para entrenar libremente con el motor.</div>
+      <div class="intro-ico" style="font-size:56px;color:rgba(99,102,241,.25);">◈</div>
+      <div class="intro-h">ChessReview</div>
+      <div class="intro-s">Paste a PGN to review your game, or switch to Play mode to train freely against the engine.</div>
     </div>
     <div id="main-ui" style="display:none;flex-direction:column;align-items:center;gap:8px;width:100%;">
       <div class="ptag" id="tag-b" style="order:0;">
         <div class="pav pav-b" id="av-b">♚</div>
-        <div class="pinfo"><div class="pname" id="pn-b">Negras</div><div class="pelo" id="pe-b"></div></div>
+        <div class="pinfo"><div class="pname" id="pn-b">Black</div><div class="pelo" id="pe-b"></div></div>
         <div class="turn-dot" id="td-b" style="color:#c8c0b0;background:rgba(200,192,176,.3);"></div>
         <div class="pacc" id="acc-b-top">—</div>
         <div class="cap-row" id="cap-by-b"></div>
@@ -416,7 +501,7 @@ button{font-family:var(--fu);cursor:pointer;}
       </div>
       <div class="ptag" id="tag-w" style="order:4;">
         <div class="pav pav-w" id="av-w">♔</div>
-        <div class="pinfo"><div class="pname" id="pn-w">Blancas</div><div class="pelo" id="pe-w"></div></div>
+        <div class="pinfo"><div class="pname" id="pn-w">White</div><div class="pelo" id="pe-w"></div></div>
         <div class="turn-dot" id="td-w" style="color:#fff;background:rgba(255,255,255,.4);box-shadow:0 0 7px #fff;"></div>
         <div class="pacc" id="acc-w-top">—</div>
         <div class="cap-row" id="cap-by-w"></div>
@@ -424,22 +509,22 @@ button{font-family:var(--fu);cursor:pointer;}
       <div class="nav-row" id="nav-row" style="order:6;">
         <button class="nb" onclick="gotoMove(0)">⏮</button>
         <button class="nb" onclick="prevMove()">◀</button>
-        <span class="nav-lbl" id="nav-lbl">Posición inicial</span>
+        <span class="nav-lbl" id="nav-lbl">Starting position</span>
         <button class="nb" onclick="nextMove()">▶</button>
         <button class="nb" onclick="gotoMove(results.length)">⏭</button>
       </div>
       <!-- Explore mode banner (shown when exploring variants) -->
       <div class="explore-banner" id="explore-banner">
-        🔍 <strong>Modo Exploración</strong>
+        🔍 <strong>Explore Mode</strong>
         <span id="explore-depth-lbl"></span>
         <span class="explore-eval-change" id="explore-eval-change"></span>
-        <button class="btn-exit-explore" onclick="exitExplore()">↩ Volver al análisis</button>
+        <button class="btn-exit-explore" onclick="exitExplore()">↩ Back to analysis</button>
       </div>
       <!-- Explore nav (replaces normal nav when exploring) -->
       <div class="explore-nav-row" id="explore-nav-row">
-        <button class="nb-explore" id="btn-undo-explore" onclick="undoExploreMove()">⟵ Deshacer</button>
-        <span class="explore-move-lbl" id="explore-move-lbl">Exploración</span>
-        <button class="nb-explore" onclick="exitExplore()">↩ Volver</button>
+        <button class="nb-explore" id="btn-undo-explore" onclick="undoExploreMove()">⟵ Undo</button>
+        <span class="explore-move-lbl" id="explore-move-lbl">Explore</span>
+        <button class="nb-explore" onclick="exitExplore()">↩ Back</button>
       </div>
     </div>
   </div>
@@ -447,19 +532,19 @@ button{font-family:var(--fu);cursor:pointer;}
   <!-- RIGHT PANEL -->
   <div class="rpanel" id="rpanel">
     <div class="rp">
-      <div class="rp-t">Evaluación</div>
+      <div class="rp-t">Evaluation</div>
       <div class="ev-chart"><svg id="ev-svg" width="100%" height="64" style="display:block;"></svg></div>
     </div>
     <div class="rp" id="rp-acc">
-      <div class="rp-t">Precisión</div>
+      <div class="rp-t">Accuracy</div>
       <div class="acc-row">
-        <div class="acc-c"><div class="acc-p" id="acc-pn-w">Blancas</div><div class="acc-n" id="acc-w">—</div><div class="acc-l">Accuracy</div></div>
-        <div class="acc-c"><div class="acc-p" id="acc-pn-b">Negras</div><div class="acc-n" id="acc-b">—</div><div class="acc-l">Accuracy</div></div>
+        <div class="acc-c"><div class="acc-p" id="acc-pn-w">White</div><div class="acc-n" id="acc-w">—</div><div class="acc-l">Accuracy</div></div>
+        <div class="acc-c"><div class="acc-p" id="acc-pn-b">Black</div><div class="acc-n" id="acc-b">—</div><div class="acc-l">Accuracy</div></div>
       </div>
     </div>
     <div class="rp">
       <div class="stats-tbl">
-        <div class="stats-hd"><span>Categoría</span><span id="sh-w">♔</span><span id="sh-b">♚</span></div>
+        <div class="stats-hd"><span>Category</span><span id="sh-w">♔</span><span id="sh-b">♚</span></div>
         <div class="srow"><div class="sid"><div class="cico ic-br">!!</div><span class="cnm">Brilliant</span></div><span class="sv vc-br" id="cw-br">—</span><span class="sv vc-br" id="cb-br">—</span></div>
         <div class="srow"><div class="sid"><div class="cico ic-gt">!</div><span class="cnm">Great</span></div><span class="sv vc-gt" id="cw-gt">—</span><span class="sv vc-gt" id="cb-gt">—</span></div>
         <div class="srow"><div class="sid"><div class="cico ic-bk" style="font-size:10px;">📖</div><span class="cnm">Book</span></div><span class="sv vc-bk" id="cw-bk">—</span><span class="sv vc-bk" id="cb-bk">—</span></div>
@@ -475,12 +560,12 @@ button{font-family:var(--fu);cursor:pointer;}
     <div class="rp">
       <div class="rp-t">Game Rating</div>
       <div class="rt-row">
-        <div class="rt-c"><div class="rt-l">Blancas</div><div class="rt-v" id="gr-w">—</div><div class="rt-p" id="gr-pn-w">—</div></div>
-        <div class="rt-c"><div class="rt-l">Negras</div><div class="rt-v" id="gr-b">—</div><div class="rt-p" id="gr-pn-b">—</div></div>
+        <div class="rt-c"><div class="rt-l">White</div><div class="rt-v" id="gr-w">—</div><div class="rt-p" id="gr-pn-w">—</div></div>
+        <div class="rt-c"><div class="rt-l">Black</div><div class="rt-v" id="gr-b">—</div><div class="rt-p" id="gr-pn-b">—</div></div>
       </div>
     </div>
     <div class="rp">
-      <div class="rp-t">Fases</div>
+      <div class="rp-t">Phases</div>
       <div class="phase-row">
         <div class="ph-c"><div class="ph-lbl">Opening</div><div class="ph-vals"><div><div class="ph-v" id="ph-op-w">—</div><div class="ph-w">♔</div></div><div><div class="ph-v" id="ph-op-b">—</div><div class="ph-w">♚</div></div></div></div>
         <div class="ph-c"><div class="ph-lbl">Middlegame</div><div class="ph-vals"><div><div class="ph-v" id="ph-mg-w">—</div><div class="ph-w">♔</div></div><div><div class="ph-v" id="ph-mg-b">—</div><div class="ph-w">♚</div></div></div></div>
@@ -488,14 +573,14 @@ button{font-family:var(--fu);cursor:pointer;}
       </div>
     </div>
     <div class="rp">
-      <div class="rp-t">Jugada seleccionada</div>
-      <div class="det-c" id="det-c"><div style="color:var(--t3);font-size:11px;">Navega las jugadas para ver el análisis.</div></div>
+      <div class="rp-t">Selected Move</div>
+      <div class="det-c" id="det-c"><div style="color:var(--t3);font-size:11px;">Navigate moves to see analysis.</div></div>
     </div>
     <div class="rp">
-      <div class="ml-wrap"><div class="ml-hd">Lista de jugadas</div><div class="ml-sc" id="mv-list"></div></div>
+      <div class="ml-wrap"><div class="ml-hd">Move List</div><div class="ml-sc" id="mv-list"></div></div>
     </div>
     <div class="rp" id="rp-live" style="display:none;">
-      <div class="rp-t">Evaluación en vivo</div>
+      <div class="rp-t">Live Evaluation</div>
       <div class="live-eval"><div class="live-eval-n" id="live-eval-n">+0.00</div><div class="live-eval-l">Stockfish eval</div></div>
       <div style="margin-top:8px;font-size:10px;color:var(--t3);font-family:var(--fm);" id="live-best-move">—</div>
     </div>
@@ -511,14 +596,14 @@ button{font-family:var(--fu);cursor:pointer;}
 //  BOARD THEMES — 8 themes
 // ═══════════════════════════════════════════════════════
 const THEMES = {
-  classic:   {light:'#f0d9b5', dark:'#b58863', name:'Clásico',    emoji:'🟫'},
-  walnut:    {light:'#e8c99a', dark:'#8b5e3c', name:'Nuez',       emoji:'🪵'},
-  marine:    {light:'#d4e8f0', dark:'#4a90b8', name:'Marino',     emoji:'🌊'},
-  forest:    {light:'#e8f0d0', dark:'#5a8a42', name:'Bosque',     emoji:'🌲'},
-  slate:     {light:'#d8dde8', dark:'#5a6880', name:'Pizarra',    emoji:'🪨'},
+  classic:   {light:'#f0d9b5', dark:'#b58863', name:'Classic',    emoji:'🟫'},
+  walnut:    {light:'#e8c99a', dark:'#8b5e3c', name:'Walnut',       emoji:'🪵'},
+  marine:    {light:'#d4e8f0', dark:'#4a90b8', name:'Marine',     emoji:'🌊'},
+  forest:    {light:'#e8f0d0', dark:'#5a8a42', name:'Forest',     emoji:'🌲'},
+  slate:     {light:'#d8dde8', dark:'#5a6880', name:'Slate',    emoji:'🪨'},
   coral:     {light:'#f8e8e0', dark:'#c06050', name:'Coral',      emoji:'🪸'},
-  midnight:  {light:'#6a6888', dark:'#2a2848', name:'Noche',      emoji:'🌙'},
-  chess_com: {light:'#eeeed2', dark:'#769656', name:'Chess.com',  emoji:'♟'},
+  midnight:  {light:'#6a6888', dark:'#2a2848', name:'Night',      emoji:'🌙'},
+  chess_com: {light:'#eeeed2', dark:'#769656', name:'Emerald',  emoji:'♟'},
 };
 
 // ═══════════════════════════════════════════════════════
@@ -696,16 +781,16 @@ const PIECE_SETS = {
 
 const PIECE_SET_META = [
   {key:'wikipedia', name:'Wikipedia', desc:'Wikimedia Commons (CC-BY-SA)'},
-  {key:'staunty',   name:'Staunty',   desc:'Lichess · sans-serif moderno'},
-  {key:'cburnett', name:'CBurnett', desc:'Lichess clásico (CC-BY-SA)'},
-  {key:'staunton',name:'Staunton', desc:'Torneo clásico'},
-  {key:'marble',  name:'Mármol',   desc:'Elegante & premium'},
-  {key:'neo',     name:'Neo',      desc:'Bold flat, alta legibilidad'},
-  {key:'wood',    name:'Madera',   desc:'Caoba & arce'},
-  {key:'neon',    name:'Neón',     desc:'Cian vs magenta'},
-  {key:'glass',   name:'Cristal',  desc:'Vidrio esmerilado'},
+  {key:'staunty',   name:'Staunty',   desc:'Lichess · modern sans-serif'},
+  {key:'cburnett', name:'CBurnett', desc:'Lichess classic (CC-BY-SA)'},
+  {key:'staunton',name:'Staunton', desc:'Classic tournament'},
+  {key:'marble',  name:'Mármol',   desc:'Elegant & premium'},
+  {key:'neo',     name:'Neo',      desc:'Bold flat, high legibility'},
+  {key:'wood',    name:'Madera',   desc:'Mahogany & maple'},
+  {key:'neon',    name:'Neón',     desc:'Cyan vs magenta'},
+  {key:'glass',   name:'Cristal',  desc:'Frosted glass'},
   {key:'pixel',   name:'Pixel',    desc:'Retro 8-bit'},
-  {key:'unicode', name:'Unicode',  desc:'Glifos del sistema'},
+  {key:'unicode', name:'Unicode',  desc:'System glyphs'},
 ];
 
 const UNICODE_SYM={wP:'♙',wR:'♖',wN:'♘',wB:'♗',wQ:'♕',wK:'♔',bP:'♟',bR:'♜',bN:'♞',bB:'♝',bQ:'♛',bK:'♚'};
@@ -968,10 +1053,10 @@ function renderCaptured(ch) {
 function setEng(s,msg){document.getElementById('eng-dot').className='eng-dot '+(s==='sf'?'dot-sf':s==='busy'?'dot-busy':s==='off'?'dot-off':'dot-ok');document.getElementById('eng-lbl').textContent=msg;}
 function setSt(t){document.getElementById('st-msg').textContent=t;}
 function setDepth(d,btn){analysisDepth=d;document.querySelectorAll('.db').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');const n={3:'Motor · ~0.2s',5:'Motor · ~1-3s',7:'Motor · ~5-15s',10:'Stockfish · ~1s',14:'Stockfish · ~3-8s',18:'Stockfish · ~15-40s'};document.getElementById('depth-note').textContent=n[d]||'';}
-function showProg(c,t,sub){document.getElementById('prog-box').classList.add('vis');const p=t?Math.round(c/t*100):0;document.getElementById('prog-txt').textContent=c===0?'Preparando…':'Jugada '+c+' / '+t;document.getElementById('prog-pct').textContent=p+'%';document.getElementById('prog-fill').style.width=p+'%';if(sub!==undefined)document.getElementById('prog-sub').textContent=sub;}
+function showProg(c,t,sub){document.getElementById('prog-box').classList.add('vis');const p=t?Math.round(c/t*100):0;document.getElementById('prog-txt').textContent=c===0?'Preparing…':'Jugada '+c+' / '+t;document.getElementById('prog-pct').textContent=p+'%';document.getElementById('prog-fill').style.width=p+'%';if(sub!==undefined)document.getElementById('prog-sub').textContent=sub;}
 function hideProg(){document.getElementById('prog-box').classList.remove('vis');}
 function loadSample(k){document.getElementById('pgn-in').value=SAMPLES[k];doAnalyze();}
-function cancelAnalysis(){cancelled=true;if(sfWorker){sfWorker.postMessage('stop');sfBusy=false;sfQueue.length=0;}setSt('Cancelado.');hideProg();setEng(usingStockfish?'sf':'ok',usingStockfish?'Stockfish listo':'Motor listo');document.getElementById('btn-cancel').style.display='none';document.getElementById('btn-analyze').style.display='';}
+function cancelAnalysis(){cancelled=true;if(sfWorker){sfWorker.postMessage('stop');sfBusy=false;sfQueue.length=0;}setSt('Cancelled.');hideProg();setEng(usingStockfish?'sf':'ok',usingStockfish?'Stockfish ready':'Engine ready');document.getElementById('btn-cancel').style.display='none';document.getElementById('btn-analyze').style.display='';}
 
 // ═══════════════════════════════════════════════════════
 //  STOCKFISH LOADER + QUEUE
@@ -982,7 +1067,7 @@ const sfQueue=[];
 async function loadStockfish(){
   const btn=document.getElementById('sf-btn');
   if(btn){btn.disabled=true;btn.textContent='⏳ Descargando…';}
-  setEng('busy','Cargando Stockfish…');
+  setEng('busy','Loading Stockfish…');
 
   const urls=[
     'https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js',
@@ -993,7 +1078,7 @@ async function loadStockfish(){
 
   for(const url of urls){
     try{
-      setSt(`Descargando ${url.split('/').slice(2,4).join('/')}…`);
+      setSt(`Downloading from ${url.split('/').slice(2,3).join('')}…`);
       const res=await fetch(url);
       if(!res.ok) throw new Error('HTTP '+res.status);
       const text=await res.text();
@@ -1019,8 +1104,8 @@ async function loadStockfish(){
       usingStockfish=true;
 
       document.getElementById('sf-section').innerHTML=`
-        <div class="slbl">Motor avanzado</div>
-        <div style="background:rgba(10,60,10,.4);border:1px solid rgba(100,200,100,.2);border-radius:var(--r);padding:10px 12px;font-size:11px;color:#6ecc6e;">
+        <div class="slbl">Advanced Engine</div>
+        <div style="background:rgba(20,15,60,.5);border:1px solid rgba(99,102,241,.25);border-radius:var(--r);padding:10px 12px;font-size:11px;color:#a5b4fc;">
           ⚡ Stockfish listo · ${Math.round(text.length/1024)} KB
         </div>`;
       ['Rápido|10','Estándar|14','Profundo|18'].forEach((s,i)=>{
@@ -1030,9 +1115,9 @@ async function loadStockfish(){
       document.querySelectorAll('.db').forEach(b=>b.classList.remove('sel'));
       document.querySelectorAll('.db')[1].classList.add('sel');
       analysisDepth=14;
-      document.getElementById('depth-note').textContent='Stockfish · ~3-8s/jugada';
-      setEng('sf','Stockfish activo');
-      setSt('✓ Stockfish listo. Analiza de nuevo para máxima precisión.');
+      document.getElementById('depth-note').textContent='Stockfish · ~3-8s/move';
+      setEng('sf','Stockfish active');
+      setSt('✓ Stockfish loaded. Re-analyze for maximum precision.');
       if(mode==='play') document.getElementById('rp-live').style.display='flex';
       return;
     }catch(e){
@@ -1041,9 +1126,9 @@ async function loadStockfish(){
       await new Promise(r=>setTimeout(r,500));
     }
   }
-  if(btn){btn.disabled=false;btn.textContent='Reintentar';}
-  setEng('ok','Motor interno');
-  setSt('No se pudo cargar Stockfish. Revisa tu conexión a internet.');
+  if(btn){btn.disabled=false;btn.textContent='Retry';}
+  setEng('ok','Internal engine');
+  setSt('Could not load Stockfish. Check your internet connection.');
 }
 
 function sfRunNext(){
@@ -1159,12 +1244,12 @@ function setMode(m){
 function setLivePlayerNames(){
   const botName=getBotName();
   if(playerColor==='w'){
-    document.getElementById('pn-w').textContent='Tú (Blancas)';
+    document.getElementById('pn-w').textContent='You (White)';
     document.getElementById('pn-b').textContent=botName;
     document.getElementById('av-w').textContent='♙';
     document.getElementById('av-b').textContent='🤖';
   } else {
-    document.getElementById('pn-b').textContent='Tú (Negras)';
+    document.getElementById('pn-b').textContent='You (Black)';
     document.getElementById('pn-w').textContent=botName;
     document.getElementById('av-b').textContent='♟';
     document.getElementById('av-w').textContent='🤖';
@@ -1172,8 +1257,8 @@ function setLivePlayerNames(){
 }
 
 function getBotName(){
-  const names={1:'Bot Novato',3:'Bot Fácil',6:'Bot Normal',10:'Bot Difícil',14:'Bot Experto',18:'Stockfish Maestro'};
-  return usingStockfish?(names[botLevel]||'Bot'):('Motor local d'+botLevel);
+  const names={1:'Beginner Bot',3:'Easy Bot',6:'Normal Bot',10:'Hard Bot',14:'Expert Bot',18:'Stockfish Master'};
+  return usingStockfish?(names[botLevel]||'Bot'):('Local engine d'+botLevel);
 }
 
 function setPlayColor(c, btn){
@@ -1222,7 +1307,7 @@ async function triggerBotMove(){
   if(!usingStockfish||!sfWorker||botThinking||liveGame.game_over()) return;
   if(liveGame.turn()===playerColor) return; // not bot's turn
   botThinking=true;
-  setBotStatus('🤖 Pensando…');
+  setBotStatus('🤖 Thinking…');
   renderLiveBoard(); // show "thinking" state
   try{
     const r = await sfAnalyze(liveGame.fen(), botLevel);
@@ -1236,12 +1321,12 @@ async function triggerBotMove(){
       const sc=playerColor==='w'?r.score:-r.score;
       document.getElementById('live-eval-n').textContent=(sc>=0?'+':'-')+Math.abs(sc/100).toFixed(2);
       setEval(playerColor==='w'?r.score:-r.score);
-      if(liveGame.in_checkmate()) setBotStatus('¡Jaque mate! '+getBotName()+' gana.');
-      else if(liveGame.in_draw()) setBotStatus('Tablas.');
-      else if(liveGame.in_check()) setBotStatus('¡Jaque! Tu turno.');
-      else setBotStatus('Tu turno ♟');
+      if(liveGame.in_checkmate()) setBotStatus('¡Jaque mate! '+getBotName()+' wins.');
+      else if(liveGame.in_draw()) setBotStatus('Draw.');
+      else if(liveGame.in_check()) setBotStatus('Check! Your turn.');
+      else setBotStatus('Your turn ♟');
     } else { botThinking=false; }
-  }catch(e){botThinking=false;setBotStatus('Error del bot: '+e.message);}
+  }catch(e){botThinking=false;setBotStatus('Bot error: '+e.message);}
 }
 
 // ── DRAG & DROP STATE ──────────────────────────────────
@@ -1282,8 +1367,8 @@ function updateExploreBanner() {
   const anchorR = exploreAnchorMove > 0 ? results[exploreAnchorMove-1] : null;
   const anchorLbl = anchorR ? `${anchorR.n}${anchorR.turn==='b'?'...':'.'}${anchorR.san}` : 'inicio';
   document.getElementById('explore-depth-lbl').textContent =
-    n === 0 ? `Desde ${anchorLbl} — haz una jugada alternativa`
-            : `${n} jugada${n>1?'s':''} desde ${anchorLbl}`;
+    n === 0 ? `From ${anchorLbl} — make an alternative move`
+            : `${n} move${n>1?'s':''} from ${anchorLbl}`;
   document.getElementById('btn-undo-explore').disabled = n === 0;
   const lastMove = exploreHistory[n-1];
   document.getElementById('explore-move-lbl').textContent =
@@ -1296,7 +1381,7 @@ function updateExploreEvalChange(whiteEvalBefore, whiteEvalAfter) {
   const el = document.getElementById('explore-eval-change');
   if (Math.abs(delta) < 5) {
     el.className = 'explore-eval-change neu';
-    el.textContent = '≈ sin cambio';
+    el.textContent = '≈ no change';
   } else if (delta > 0) {
     el.className = 'explore-eval-change pos';
     el.textContent = `▲ +${absDelta} (Blancas ↑)`;
@@ -1313,12 +1398,12 @@ function showExploreDetail(moveSan, whiteEvalBefore, whiteEvalAfter) {
   document.getElementById('det-c').innerHTML = `
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
       <div style="width:26px;height:26px;border-radius:50%;background:rgba(255,180,0,.2);border:1px solid rgba(255,180,0,.4);display:flex;align-items:center;justify-content:center;font-size:13px;">🔍</div>
-      <span style="font-family:var(--fm);font-size:18px;font-weight:600;color:#e8c13a;">${moveSan}</span>
+      <span style="font-family:var(--fm);font-size:18px;font-weight:600;color:#a5b4fc;">${moveSan}</span>
       <span style="font-size:12px;color:var(--t2);">Variante explorada</span>
     </div>
     <div style="font-size:11px;color:var(--t2);line-height:1.8;">
-      Eval antes: <span style="font-family:var(--fm);color:var(--t0);">${fmt(whiteEvalBefore)}</span>
-      &nbsp;→&nbsp; Eval después: <span style="font-family:var(--fm);color:var(--t0);">${fmt(whiteEvalAfter)}</span><br>
+      Eval before: <span style="font-family:var(--fm);color:var(--t0);">${fmt(whiteEvalBefore)}</span>
+      &nbsp;→&nbsp; After: <span style="font-family:var(--fm);color:var(--t0);">${fmt(whiteEvalAfter)}</span><br>
       Cambio: <span style="font-family:var(--fm);color:${color};font-weight:600;">${fmt(delta)}</span>
       ${Math.abs(delta)>50?'<span style="font-size:10px;opacity:.7;"> — cambio significativo</span>':''}
     </div>`;
@@ -1473,14 +1558,14 @@ function doMove(game, from, to) {
 
     if (mode === 'play') {
       renderActiveBoard();
-      if (game.in_checkmate()) { setBotStatus('¡Jaque mate! '+(game.turn()==='w'?'Negras':'Blancas')+' ganan.'); return; }
-      if (game.in_draw())      { setBotStatus('Tablas.'); return; }
-      if (game.in_check())     setBotStatus('¡Jaque!');
+      if (game.in_checkmate()) { setBotStatus('Checkmate! '+(game.turn()==='w'?'Black':'White')+' wins.'); return; }
+      if (game.in_draw())      { setBotStatus('Draw.'); return; }
+      if (game.in_check())     setBotStatus('Check!');
       if (usingStockfish && game.turn()!==playerColor && !botThinking) {
-        setBotStatus('🤖 Pensando…');
+        setBotStatus('🤖 Thinking…');
         setTimeout(triggerBotMove, 200);
       } else if (!usingStockfish) {
-        setBotStatus('Carga Stockfish para jugar contra el bot.');
+        setBotStatus('Load Stockfish to play against the bot.');
       }
 
     } else {
@@ -1498,14 +1583,14 @@ function doMove(game, from, to) {
       document.getElementById('det-c').innerHTML = `
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
           <div style="width:26px;height:26px;border-radius:50%;background:rgba(255,180,0,.2);border:1px solid rgba(255,180,0,.4);display:flex;align-items:center;justify-content:center;">⏳</div>
-          <span style="font-family:var(--fm);font-size:18px;font-weight:600;color:#e8c13a;">${move.san}</span>
+          <span style="font-family:var(--fm);font-size:18px;font-weight:600;color:#a5b4fc;">${move.san}</span>
           <span style="font-size:12px;color:var(--t2);">Evaluando…</span>
         </div>`;
 
       // Game state messages
-      if (game.in_checkmate()) setSt('¡Jaque mate! — pulsa ⟵ para deshacer o ↩ para volver.');
-      else if (game.in_draw()) setSt('Tablas — pulsa ⟵ para deshacer.');
-      else if (game.in_check()) setSt('¡Jaque!');
+      if (game.in_checkmate()) setSt('Checkmate! — press ⟵ to undo or ↩ to exit.');
+      else if (game.in_draw()) setSt('Draw — press ⟵ to undo.');
+      else if (game.in_check()) setSt('Check!');
       else setSt('');
 
       // Async eval — doesn't block UI
@@ -1768,19 +1853,19 @@ function setEval(score) {
 //  ANALYSIS
 // ═══════════════════════════════════════════════════════
 async function doAnalyze(){
-  if(typeof Chess==='undefined'){setSt('Error: chess.js no cargó.');return;}
+  if(typeof Chess==='undefined'){setSt('Error: chess.js failed to load.');return;}
   if(mode!=='analyze')setMode('analyze');
   const pgn=document.getElementById('pgn-in').value.trim();
-  if(!pgn){setSt('Ingresa un PGN.');return;}
+  if(!pgn){setSt('Please enter a PGN.');return;}
   const tmp=new Chess();
-  if(!tmp.load_pgn(pgn)){setSt('PGN inválido.');return;}
-  const moves=tmp.history();if(!moves.length){setSt('Sin jugadas.');return;}
+  if(!tmp.load_pgn(pgn)){setSt('Invalid PGN format.');return;}
+  const moves=tmp.history();if(!moves.length){setSt('No moves found.');return;}
   cancelled=false;
   document.getElementById('btn-cancel').style.display='';document.getElementById('btn-analyze').style.display='none';
-  setEng('busy','Analizando…');
+  setEng('busy','Analyzing…');
 
   const hdr=tmp.header();
-  const wn=hdr.White||'Blancas',bn=hdr.Black||'Negras';
+  const wn=hdr.White||'White',bn=hdr.Black||'Black';
   ['pn-w','acc-pn-w','gr-pn-w'].forEach(id=>document.getElementById(id).textContent=wn);
   ['pn-b','acc-pn-b','gr-pn-b'].forEach(id=>document.getElementById(id).textContent=bn);
   document.getElementById('sh-w').textContent=wn.split(/\s/)[0];document.getElementById('sh-b').textContent=bn.split(/\s/)[0];
@@ -1872,7 +1957,7 @@ async function doAnalyze(){
     results._finalArrowTo=fu.slice(2,4);
   }
   hideProg();document.getElementById('btn-cancel').style.display='none';document.getElementById('btn-analyze').style.display='';
-  setEng(usingStockfish?'sf':'ok',usingStockfish?'Stockfish ✓':'Motor ✓');
+  setEng(usingStockfish?'sf':'ok',usingStockfish?'Stockfish ✓':'Engine ✓');
 
   try {
     const accW=calcAcc(results,'w'),accB=calcAcc(results,'b');
@@ -1907,10 +1992,10 @@ async function doAnalyze(){
     renderMoveList();
   } catch(err) {
     console.error('UI update error:', err);
-    setSt('⚠ Error actualizando panel: '+err.message);
+    setSt('⚠ Error updating panel: '+err.message);
   }
   const elapsed=Math.round((Date.now()-t0)/1000);
-  setSt(`✓ ${N} jugadas · ${usingStockfish?'Stockfish':'Motor interno'} depth ${analysisDepth} · ${elapsed}s`);
+  setSt(`✓ ${N} jugadas · ${usingStockfish?'Stockfish':'Internal engine'} depth ${analysisDepth} · ${elapsed}s`);
   gotoMove(results.length);
 }
 
@@ -1947,7 +2032,7 @@ function renderEvalChart(){
 // ═══════════════════════════════════════════════════════
 function showDetail(r){
   const cfg=CFG[r.cls]||CFG.best;
-  const ph={opening:'Apertura',middlegame:'Mediojuego',endgame:'Final'}[r.phase]||'';
+  const ph={opening:'Opening',middlegame:'Middlegame',endgame:'Endgame'}[r.phase]||'';
   const wpPct = r.wpLoss !== undefined ? Math.round(r.wpLoss*1000)/10 : null;
   let h=`<div class="det-h">
     <div class="cico ${cfg.ic}" style="width:28px;height:28px;font-size:10px;">${cfg.sym==='📖'?'B':cfg.sym}</div>
@@ -1958,7 +2043,7 @@ function showDetail(r){
   if(r.cls==='book'){
     h += `Apertura teórica${r.openingName?`: <em style="color:var(--t0);">${r.openingName}</em>`:'.'}`; 
   } else if(r.wpLoss===0||r.cls==='best'||r.cls==='brilliant'){
-    h+='Jugada perfecta del motor — sin pérdida.';
+    h+='Engine\'s best move — no loss.';
   } else {
     const wpStr = wpPct!==null ? `WP loss: <strong style="color:var(--t0);">${wpPct}%</strong>` : '';
     h+=`${wpStr}${r.best?` · Mejor: <span class="det-best">${r.best}</span>`:''}`;
@@ -2019,8 +2104,8 @@ function drawBestMoveArrow(from, to) {
     [sx-px*arrowW, sy-py*arrowW],
   ];
   path.setAttribute('points', body.map(p=>p.join(',')).join(' '));
-  path.setAttribute('fill', 'rgba(80,160,255,0.65)');
-  path.setAttribute('stroke', 'rgba(40,100,220,0.8)');
+  path.setAttribute('fill', 'rgba(99,102,241,0.65)');
+  path.setAttribute('stroke', 'rgba(79,70,229,0.9)');
   path.setAttribute('stroke-width', '1');
   svg.appendChild(path);
 
@@ -2078,8 +2163,8 @@ function gotoMove(idx){
     if(curMove!==prevMove) playMoveSound(r.san, ch.in_checkmate()||ch.in_draw());
   } else {
     setEval(evalH[0]||0);
-    document.getElementById('det-c').innerHTML='<div style="color:var(--t3);font-size:11px;">Posición inicial — haz clic en una pieza para explorar variantes.</div>';
-    document.getElementById('nav-lbl').textContent='Posición inicial';
+    document.getElementById('det-c').innerHTML='<div style="color:var(--t3);font-size:11px;">Starting position — click a piece to explore variations.</div>';
+    document.getElementById('nav-lbl').textContent='Starting position';
     hlList(-1);
   }
   renderEvalChart();
@@ -2126,7 +2211,7 @@ function doReset(){
   document.getElementById('intro').style.display='flex';document.getElementById('main-ui').style.display='none';
   CATS.forEach(k=>{document.getElementById('cw-'+SHORT[k]).textContent='—';document.getElementById('cb-'+SHORT[k]).textContent='—';});
   ['acc-w','acc-b','acc-w-top','acc-b-top','gr-w','gr-b'].forEach(id=>document.getElementById(id).textContent='—');
-  hideProg();setSt('Carga una partida o usa el modo Jugar.');cancelled=false;
+  hideProg();setSt('Load a game or use Play mode.');cancelled=false;
   document.getElementById('btn-cancel').style.display='none';document.getElementById('btn-analyze').style.display='';
 }
 
@@ -2242,6 +2327,29 @@ document.addEventListener('keydown',e=>{
 
 // Init
 renderBoard(new Chess(),null,null,null,null);
+
+// ── LANDING PAGE LOGIC ─────────────────────────────────────────
+function hideLanding() {
+  const lp = document.getElementById('landing-page');
+  if (lp) { lp.style.opacity='0'; lp.style.transition='opacity .3s'; setTimeout(()=>lp.classList.add('hidden'),300); }
+}
+function launchApp() {
+  hideLanding();
+}
+function launchWithPGN() {
+  const pgn = document.getElementById('land-pgn').value.trim();
+  if (pgn) document.getElementById('pgn-in').value = pgn;
+  hideLanding();
+  if (pgn) setTimeout(() => doAnalyze(), 350);
+}
+function loadSampleAndLaunch(key) {
+  hideLanding();
+  setTimeout(() => loadSample(key), 350);
+}
+function showPricing() {
+  alert('🚀 Premium plans coming soon!\n\nPro: Unlimited analysis + Stockfish depth 18\nElite: AI coach insights + weekly reports\n\nJoin the waitlist → chess-review-one.vercel.app');
+}
+
 </script>
 </body>
 </html>
