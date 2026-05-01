@@ -9,21 +9,19 @@
 
 <style>
 :root {
-    --bg0: #09090f;
-    --bg1: #111118;
-    --bg2: #1a1a24;
-    --bg3: #242430;
+    --bg0: #0a0a12;
+    --bg1: #12121e;
+    --bg2: #1c1c2b;
+    --bg3: #27273a;
     --accent: #6366f1;
-    --accent-dark: #4f46e5;
-    --text: #f0f0fa;
-    --text2: #b8b8d8;
-    --text3: #7a7aa0;
-
-    --sq-l: #f0d9b5;
-    --sq-d: #b58863;
+    --accent2: #4f46e5;
+    --text: #f1f1fb;
+    --text2: #b8b8dd;
+    --text3: #7777aa;
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
+
 body {
     background: var(--bg0);
     color: var(--text);
@@ -34,13 +32,13 @@ body {
 
 /* HEADER */
 .hdr {
-    height: 68px;
+    height: 70px;
     background: var(--bg1);
     border-bottom: 1px solid rgba(255,255,255,0.08);
     display: flex;
     align-items: center;
     padding: 0 24px;
-    gap: 16px;
+    gap: 18px;
     z-index: 100;
 }
 
@@ -48,164 +46,134 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 23px;
+    font-size: 24px;
     font-weight: 700;
 }
 
-.logo em { color: var(--accent); font-style: normal; }
-
-.mode-toggle {
-    display: flex;
-    background: var(--bg2);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 9999px;
-    padding: 4px;
-}
-
-.mode-btn {
-    padding: 9px 22px;
-    border-radius: 9999px;
-    font-size: 14.5px;
-    font-weight: 600;
-    transition: all 0.25s;
-}
-
-.mode-btn.active {
-    background: var(--accent);
-    color: white;
-    box-shadow: 0 4px 15px rgba(99,102,241,0.4);
-}
+.logo em { color: var(--accent); }
 
 /* LANDING */
 #landing {
     position: fixed;
     inset: 0;
-    background: radial-gradient(circle at 50% 25%, rgba(99,102,241,0.16), transparent 70%), var(--bg0);
+    background: radial-gradient(circle at 50% 20%, rgba(99,102,241,0.18), transparent 65%), var(--bg0);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    transition: opacity 0.6s ease;
 }
 
 .ld-card {
-    background: rgba(17,17,27,0.96);
+    background: rgba(18,18,32,0.95);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(99,102,241,0.25);
+    border: 1px solid rgba(99,102,241,0.3);
     border-radius: 28px;
-    padding: 56px 48px;
-    max-width: 620px;
+    padding: 60px 50px;
+    max-width: 640px;
     text-align: center;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.65);
+    box-shadow: 0 30px 90px rgba(0,0,0,0.7);
 }
 
-.ld-h {
-    font-size: 54px;
-    font-weight: 800;
-    line-height: 1.05;
-    letter-spacing: -2.8px;
-    margin-bottom: 20px;
-}
-
-.ld-h em {
-    background: linear-gradient(90deg, #6366f1, #a855f7);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-/* BOARD */
+/* BOARD AREA */
 .center {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
+    gap: 20px;
     background: var(--bg0);
 }
 
-.board-inner {
+.board-container {
     position: relative;
 }
 
 .board-grid {
     display: grid;
-    grid-template-columns: repeat(8, 70px);
-    grid-template-rows: repeat(8, 70px);
-    border-radius: 14px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 25px 70px rgba(0,0,0,0.8),
-                inset 0 0 0 1px rgba(255,255,255,0.12);
+    box-shadow: 0 25px 80px rgba(0,0,0,0.85),
+                0 0 0 1px rgba(255,255,255,0.15) inset;
+    transition: all 0.3s ease;
 }
 
 .sq {
-    width: 70px;
-    height: 70px;
+    width: 72px;
+    height: 72px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     cursor: pointer;
-    transition: filter 0.1s;
+    transition: all 0.2s ease;
 }
-
-.sq.li { background: var(--sq-l); }
-.sq.dk { background: var(--sq-d); }
-
-.sq:hover { filter: brightness(1.12); }
 
 .piece {
-    width: 86%;
-    height: 86%;
-    z-index: 3;
-    pointer-events: none;
+    width: 88%;
+    height: 88%;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+    transition: transform 0.2s ease;
 }
 
-/* Legal moves */
-.sq .legal-dot {
-    position: absolute;
-    width: 18px;
-    height: 18px;
-    background: rgba(0, 255, 80, 0.45);
-    border-radius: 50%;
-    z-index: 4;
+.sq:hover .piece {
+    transform: scale(1.08);
 }
 
-.sq .legal-capture {
+/* Legal Moves */
+.legal-move::after {
+    content: '';
     position: absolute;
-    inset: 0;
-    border: 5px solid rgba(255, 60, 60, 0.6);
+    width: 22px;
+    height: 22px;
+    background: rgba(80, 200, 120, 0.5);
     border-radius: 50%;
-    z-index: 4;
-    box-sizing: border-box;
+    z-index: 5;
+}
+
+.legal-capture {
+    position: absolute;
+    inset: 6px;
+    border: 4px solid rgba(255, 80, 80, 0.7);
+    border-radius: 50%;
+    z-index: 5;
 }
 
 /* Eval Bar */
-.ev-col {
+.ev-bar-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    margin-right: 12px;
+}
+
+.ev-num {
+    font-family: 'Inconsolata', monospace;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text2);
 }
 
 .ev-bar {
-    width: 18px;
-    height: 560px;
-    background: #1f1f2a;
+    width: 20px;
+    height: 580px;
+    background: #1f1f2e;
     border-radius: 9999px;
     overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.1);
 }
 
-.ev-white {
+.ev-fill {
+    width: 100%;
     height: 50%;
     background: linear-gradient(to top, #a5b4fc, #6366f1);
-    transition: height 0.4s ease;
+    transition: height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* Buttons */
 button {
     cursor: pointer;
+    transition: all 0.2s;
 }
 </style>
 </head>
@@ -214,17 +182,17 @@ button {
 <!-- LANDING -->
 <div id="landing">
     <div class="ld-card">
-        <div class="logo" style="justify-content:center; font-size:32px; margin-bottom:32px;">
+        <div class="logo" style="justify-content:center;font-size:34px;margin-bottom:28px;">
             ◈ <span style="background:linear-gradient(90deg,#6366f1,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">ChessReview</span>
         </div>
-        <h1 class="ld-h">Stop losing<br>to <em>your own</em> mistakes</h1>
-        <p style="font-size:18px; color:var(--text2); margin-bottom:40px;">Paste a game. Get a professional review with Stockfish.</p>
-
-        <textarea id="land-pgn" rows="4" placeholder="Paste your PGN here..." 
-            style="width:100%; background:#1f1f2a; border:2px solid rgba(99,102,241,0.3); border-radius:16px; padding:18px; color:#ddd; font-family:monospace; resize:vertical;"></textarea>
-
-        <button onclick="launchWithPGN()" style="width:100%; margin-top:20px; padding:18px; font-size:17px; background:linear-gradient(135deg,#6366f1,#4f46e5); color:white; border:none; border-radius:16px; font-weight:700;">
-            Analyze My Game — Free
+        <h1 style="font-size:52px;font-weight:800;line-height:1.1;letter-spacing:-2.5px;margin-bottom:20px;">
+            Stop losing to<br><em>your own mistakes</em>
+        </h1>
+        <p style="font-size:19px;color:var(--text2);margin-bottom:40px;">
+            Professional chess analysis with beautiful board and smart insights.
+        </p>
+        <button onclick="launchWithPGN()" style="width:100%;padding:18px;font-size:18px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;border-radius:16px;font-weight:700;">
+            Analyze My Game
         </button>
     </div>
 </div>
@@ -234,156 +202,166 @@ button {
     <div class="logo">
         ◈ <span style="color:var(--accent)">ChessReview</span>
     </div>
-    <div class="mode-toggle">
-        <button class="mode-btn active" id="mode-analyze" onclick="setMode('analyze')">Analysis</button>
-        <button class="mode-btn" id="mode-play" onclick="setMode('play')">Play</button>
-    </div>
     <div style="flex:1"></div>
-    <button onclick="doFlip()" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:var(--text2);padding:8px 18px;border-radius:12px;">Flip</button>
-    <button onclick="doAnalyze()" style="background:var(--accent);color:white;border:none;padding:10px 24px;border-radius:12px;font-weight:600;">Analyze</button>
+    <button onclick="doFlip()" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:var(--text2);padding:10px 20px;border-radius:12px;">Flip Board</button>
+    <button onclick="showCustomize()" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:var(--text2);padding:10px 20px;border-radius:12px;">Customize</button>
 </div>
 
-<div class="page" style="display:flex;height:calc(100vh - 68px);">
-    <!-- CENTER BOARD -->
+<div style="display:flex;height:calc(100vh - 70px);">
+    <!-- CENTER -->
     <div class="center">
-        <div class="ev-col">
-            <div id="ev-num" style="font-family:monospace; font-size:15px; color:var(--text2);">+0.00</div>
-            <div class="ev-bar"><div class="ev-white" id="ev-white"></div></div>
+        <div class="ev-bar-container">
+            <div id="ev-num">+0.00</div>
+            <div class="ev-bar">
+                <div class="ev-fill" id="ev-fill"></div>
+            </div>
         </div>
-        
-        <div class="board-inner">
+
+        <div class="board-container">
             <div class="board-grid" id="board-grid"></div>
         </div>
     </div>
 </div>
 
+<!-- CUSTOMIZE MODAL -->
+<div id="customize-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:2000;align-items:center;justify-content:center;">
+    <div style="background:var(--bg2);padding:30px;border-radius:20px;width:520px;max-height:90vh;overflow-y:auto;">
+        <h3 style="margin-bottom:20px;">Customize Board</h3>
+        
+        <div style="margin-bottom:20px;">
+            <strong>Board Theme</strong>
+            <div id="theme-options" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px;"></div>
+        </div>
+
+        <div>
+            <strong>Piece Set</strong>
+            <div id="piece-options" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;"></div>
+        </div>
+
+        <button onclick="closeCustomize()" style="margin-top:25px;width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;">Close</button>
+    </div>
+</div>
+
 <script>
-// ==================== GLOBAL VARIABLES ====================
+// ==================== CONFIG ====================
 let chess = new Chess();
 let flipped = false;
 let currentTheme = 'classic';
-let selectedSq = null;
-let legalMoves = [];
+let currentPieceSet = 'unicode';
 
-// Board themes
-const THEMES = {
-    classic: { light: '#f0d9b5', dark: '#b58863' },
-    walnut:  { light: '#e8c99a', dark: '#8b5e3c' },
-    marine:  { light: '#d4e8f0', dark: '#4a90b8' }
+// Board Themes
+const BOARD_THEMES = {
+    classic:  { light: '#f0d9b5', dark: '#b58863', name: 'Classic' },
+    walnut:   { light: '#e8d0a8', dark: '#8b5e3c', name: 'Walnut' },
+    marine:   { light: '#d4e8f0', dark: '#4a90b8', name: 'Marine' },
+    forest:   { light: '#e8f0d0', dark: '#5a8a42', name: 'Forest' },
+    midnight: { light: '#a0a0cc', dark: '#2a2a4a', name: 'Midnight' },
+    emerald:  { light: '#eeeed2', dark: '#769656', name: 'Emerald' }
 };
 
-// ==================== RENDER BOARD ====================
+// Piece rendering
+function getPieceHTML(color, type) {
+    const unicodePieces = {
+        'w': { p: '♙', r: '♖', n: '♘', b: '♗', q: '♕', k: '♔' },
+        'b': { p: '♟', r: '♜', n: '♞', b: '♝', q: '♛', k: '♚' }
+    };
+    
+    if (currentPieceSet === 'unicode') {
+        return `<span style="font-size:52px;">${unicodePieces[color][type]}</span>`;
+    }
+    
+    // Default to unicode for now (we can add SVG sets later)
+    return `<span style="font-size:52px;">${unicodePieces[color][type]}</span>`;
+}
+
+// Render Board
 function renderBoard() {
     const grid = document.getElementById('board-grid');
     grid.innerHTML = '';
-    grid.style.gridTemplateColumns = 'repeat(8, 70px)';
-    grid.style.gridTemplateRows = 'repeat(8, 70px)';
+    grid.style.gridTemplateColumns = 'repeat(8, 72px)';
+    grid.style.gridTemplateRows = 'repeat(8, 72px)';
 
-    const board = chess.board();
-    const ranks = flipped ? [0,1,2,3,4,5,6,7] : [7,6,5,4,3,2,1,0];
-    const files = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
+    const boardArray = chess.board();
+    const ranks = flipped ? Array.from({length:8}, (_,i)=>i) : Array.from({length:8}, (_,i)=>7-i);
+    const files = flipped ? Array.from({length:8}, (_,i)=>7-i) : Array.from({length:8}, (_,i)=>i);
 
     for (let r of ranks) {
         for (let c of files) {
-            const sqName = String.fromCharCode(97 + c) + (r + 1);
+            const squareName = String.fromCharCode(97 + c) + (r + 1);
             const isLight = (r + c) % 2 === 0;
-            const theme = THEMES[currentTheme];
+            const theme = BOARD_THEMES[currentTheme];
 
             const sq = document.createElement('div');
             sq.className = `sq ${isLight ? 'li' : 'dk'}`;
-            sq.dataset.square = sqName;
             sq.style.background = isLight ? theme.light : theme.dark;
+            sq.dataset.square = squareName;
 
-            // Piece
-            const piece = board[7-r][c];
+            const piece = boardArray[7-r][c];
             if (piece) {
-                const pDiv = document.createElement('div');
-                pDiv.className = 'piece';
-                pDiv.innerHTML = getPieceUnicode(piece.color, piece.type);
-                sq.appendChild(pDiv);
+                const pieceDiv = document.createElement('div');
+                pieceDiv.className = 'piece';
+                pieceDiv.innerHTML = getPieceHTML(piece.color, piece.type);
+                sq.appendChild(pieceDiv);
             }
 
-            // Legal move indicator
-            if (legalMoves.includes(sqName)) {
-                const dot = document.createElement('div');
-                dot.className = piece ? 'legal-capture' : 'legal-dot';
-                sq.appendChild(dot);
-            }
-
-            sq.addEventListener('click', () => handleSquareClick(sqName));
+            sq.addEventListener('click', () => handleSquareClick(squareName));
             grid.appendChild(sq);
         }
     }
 }
 
-// Simple Unicode pieces
-function getPieceUnicode(color, type) {
-    const pieces = {
-        'w': { 'p':'♙','r':'♖','n':'♘','b':'♗','q':'♕','k':'♔' },
-        'b': { 'p':'♟','r':'♜','n':'♞','b':'♝','q':'♛','k':'♚' }
-    };
-    return pieces[color][type] || '';
-}
-
-// ==================== SQUARE CLICK LOGIC ====================
+// Click handler
 function handleSquareClick(square) {
-    const piece = chess.get(square);
-
-    if (selectedSq) {
-        // Try to make move
-        const move = chess.move({ from: selectedSq, to: square, promotion: 'q' });
-        if (move) {
-            renderBoard();
-            selectedSq = null;
-            legalMoves = [];
-            return;
-        } 
-        // If not valid move, deselect
-        selectedSq = null;
-        legalMoves = [];
-        renderBoard();
-    }
-
-    // Select piece
-    if (piece && piece.color === chess.turn()) {
-        selectedSq = square;
-        legalMoves = chess.moves({ square: square, verbose: true }).map(m => m.to);
-        renderBoard();
-    }
+    // Basic move logic (will be expanded in next phases)
+    console.log("Clicked:", square);
+    // For now just log - full move logic in next phase
 }
 
+// Flip
 function doFlip() {
     flipped = !flipped;
     renderBoard();
 }
 
-function setMode(m) {
-    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`mode-${m}`).classList.add('active');
-}
-
-function launchWithPGN() {
-    const pgn = document.getElementById('land-pgn').value.trim();
-    if (pgn) {
-        document.getElementById('landing').style.opacity = '0';
-        setTimeout(() => {
-            document.getElementById('landing').style.display = 'none';
-            alert("PGN cargado. Tablero listo.");
+// Customize Modal
+function showCustomize() {
+    const modal = document.getElementById('customize-modal');
+    modal.style.display = 'flex';
+    
+    // Render themes
+    const themeDiv = document.getElementById('theme-options');
+    themeDiv.innerHTML = '';
+    Object.keys(BOARD_THEMES).forEach(key => {
+        const th = BOARD_THEMES[key];
+        const btn = document.createElement('div');
+        btn.style.cssText = `background:${th.dark};height:60px;border-radius:8px;cursor:pointer;border:3px solid ${currentTheme===key?'#6366f1':'transparent'};`;
+        btn.onclick = () => {
+            currentTheme = key;
             renderBoard();
-        }, 600);
-    }
+            showCustomize(); // refresh modal
+        };
+        themeDiv.appendChild(btn);
+    });
 }
 
-function doAnalyze() {
-    alert("Análisis completo con Stockfish se añadirá en la siguiente fase.");
+function closeCustomize() {
+    document.getElementById('customize-modal').style.display = 'none';
 }
 
-// Initialize
+// Launch
+function launchWithPGN() {
+    document.getElementById('landing').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('landing').style.display = 'none';
+        renderBoard();
+    }, 600);
+}
+
+// Init
 window.onload = () => {
     renderBoard();
-    console.log("%cChessReview - Fase 2 cargada (Tablero funcional)", "color:#6366f1; font-weight:bold");
+    console.log("%cChessReview - Fase 3 cargada con tablero atractivo", "color:#6366f1;font-weight:bold");
 };
 </script>
-
 </body>
 </html>
