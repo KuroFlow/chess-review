@@ -235,7 +235,51 @@ button{font-family:var(--fu);cursor:pointer;}
 /* intro */
 .intro{display:flex;flex-direction:column;align-items:center;gap:16px;padding:40px;text-align:center;}
 
-/* ── EXPLORE MODE ──────────────────────────────────── */
+/* ═══════════ LANDING ═══════════ */
+#landing{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:opacity .5s ease;}
+#landing.out{opacity:0;pointer-events:none;}
+
+/* Animated gradient background */
+.ld-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(99,102,241,.18) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 20% 80%,rgba(124,58,237,.12) 0%,transparent 60%),#09090f;}
+/* Board preview mosaic — decorative squares */
+.ld-board{position:absolute;inset:0;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);opacity:.07;pointer-events:none;}
+.ld-sq{transition:opacity .3s;}
+.ld-sq.l{background:#6366f1;}
+.ld-sq.d{background:#09090f;}
+
+/* Center card */
+.ld-card{position:relative;z-index:10;text-align:center;max-width:560px;padding:0 24px;}
+.ld-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:48px;}
+.ld-logo-mark{font-size:28px;background:linear-gradient(135deg,#6366f1,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:900;letter-spacing:-2px;}
+.ld-logo-dot{width:6px;height:6px;border-radius:50%;background:#6366f1;box-shadow:0 0 12px #6366f1;flex-shrink:0;}
+.ld-h{font-size:clamp(42px,8vw,80px);font-weight:800;line-height:1.0;letter-spacing:-3px;color:#ededf4;margin-bottom:16px;}
+.ld-h em{font-style:normal;background:linear-gradient(135deg,#6366f1 0%,#a855f7 50%,#ec4899 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.ld-sub{font-size:16px;color:rgba(237,237,244,.4);letter-spacing:-.2px;margin-bottom:44px;font-weight:400;}
+
+/* PGN drop zone */
+.ld-pgn-wrap{position:relative;margin-bottom:14px;}
+.ld-pgn{width:100%;background:rgba(255,255,255,.04);border:1.5px solid rgba(99,102,241,.25);border-radius:14px;color:#b8b8d0;font-family:'Inconsolata',monospace;font-size:12px;line-height:1.8;padding:16px 18px;resize:none;height:90px;outline:none;transition:all .2s;display:block;}
+.ld-pgn:focus{border-color:#6366f1;background:rgba(99,102,241,.06);box-shadow:0 0 0 4px rgba(99,102,241,.1);}
+.ld-pgn::placeholder{color:rgba(237,237,244,.18);}
+
+/* Buttons */
+.ld-btns{display:flex;gap:10px;}
+.ld-btn-main{flex:1;background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;border:none;border-radius:12px;padding:16px 28px;font-size:15px;font-weight:700;cursor:pointer;transition:all .25s;font-family:'Sora',sans-serif;letter-spacing:-.3px;position:relative;overflow:hidden;}
+.ld-btn-main::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12),transparent);opacity:0;transition:opacity .2s;}
+.ld-btn-main:hover::before{opacity:1;}
+.ld-btn-main:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(99,102,241,.45);}
+.ld-btn-main:active{transform:translateY(0);}
+.ld-btn-sample{background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.08);color:rgba(237,237,244,.5);border-radius:12px;padding:16px 20px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Sora',sans-serif;white-space:nowrap;}
+.ld-btn-sample:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.15);color:rgba(237,237,244,.8);}
+
+/* Stats row */
+.ld-stats{display:flex;justify-content:center;gap:0;margin-top:52px;border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.02);}
+.ld-stat{flex:1;padding:16px 8px;text-align:center;border-right:1px solid rgba(255,255,255,.06);}
+.ld-stat:last-child{border-right:none;}
+.ld-stat-n{font-family:'Inconsolata',monospace;font-size:22px;font-weight:600;color:#ededf4;letter-spacing:-1px;display:block;}
+.ld-stat-l{font-size:10px;color:rgba(237,237,244,.3);margin-top:2px;display:block;letter-spacing:.3px;}
+
+
 .explore-banner{
   display:none;width:100%;max-width:560px;
   background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(124,58,237,.08));
@@ -298,87 +342,59 @@ button{font-family:var(--fu);cursor:pointer;}
 </div>
 
 
-<!-- ═══════════════ LANDING PAGE ═══════════════ -->
-<div class="landing" id="landing-page">
-  <!-- Nav -->
-  <div class="land-nav">
-    <div class="land-logo">
-      <span class="land-logo-ico">◈</span>
-      <span><em>Chess</em>Review</span>
-    </div>
-    <div class="land-nav-r">
-      <button class="land-nav-link" onclick="loadSampleAndLaunch('opera')">Demo</button>
-      <button class="land-nav-link" onclick="showPricing()">Pricing</button>
-      <button class="land-nav-btn" onclick="launchApp()">Open App →</button>
-    </div>
-  </div>
+<!-- ═══════════ LANDING ═══════════ -->
+<div id="landing">
+  <div class="ld-bg"></div>
+  <!-- Decorative board grid background -->
+  <div class="ld-board" id="ld-board"></div>
 
-  <!-- Hero -->
-  <div class="land-hero">
-    <div class="land-badge">
-      <span class="land-badge-dot"></span>
-      Free · No account required · Powered by Stockfish
+  <div class="ld-card">
+    <!-- Logo -->
+    <div class="ld-logo">
+      <span class="ld-logo-dot"></span>
+      <span class="ld-logo-mark">ChessReview</span>
+      <span class="ld-logo-dot"></span>
     </div>
-    <h1 class="land-h1">Stop repeating<br>the same <em>blunders.</em></h1>
-    <p class="land-sub">Analyze your chess games with engine-level precision. Find your blunders, discover winning moves you missed, and track your accuracy — just like the pros.</p>
 
-    <div class="land-cta-box">
-      <div class="land-pgn-lbl">Paste your PGN</div>
-      <textarea class="land-pgn" id="land-pgn" placeholder='[White "You"][Black "Opponent"]
-1.e4 e5 2.Nf3 Nc6 3.Bb5 ...'></textarea>
-      <div class="land-cta-row">
-        <button class="land-cta-main" onclick="launchWithPGN()">▶ Analyze My Game — Free</button>
-        <button class="land-cta-alt" onclick="loadSampleAndLaunch('immortal')">Try a sample</button>
+    <!-- Headline -->
+    <div class="ld-h">Stop losing<br>to <em>your own</em><br>mistakes.</div>
+    <div class="ld-sub">Paste a game. See every blunder, miss, and missed brilliance.</div>
+
+    <!-- PGN input -->
+    <div class="ld-pgn-wrap">
+      <textarea class="ld-pgn" id="land-pgn"
+        placeholder="Paste your PGN here — or try a sample below"></textarea>
+    </div>
+
+    <!-- CTAs -->
+    <div class="ld-btns">
+      <button class="ld-btn-main" onclick="launchWithPGN()">
+        ▶&nbsp; Analyze My Game — Free
+      </button>
+      <button class="ld-btn-sample" onclick="loadSampleAndLaunch('immortal')">
+        Demo
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="ld-stats">
+      <div class="ld-stat">
+        <span class="ld-stat-n">3,399</span>
+        <span class="ld-stat-l">Openings tracked</span>
+      </div>
+      <div class="ld-stat">
+        <span class="ld-stat-n">10</span>
+        <span class="ld-stat-l">Move categories</span>
+      </div>
+      <div class="ld-stat">
+        <span class="ld-stat-n">Stockfish</span>
+        <span class="ld-stat-l">Engine powered</span>
+      </div>
+      <div class="ld-stat">
+        <span class="ld-stat-n">Free</span>
+        <span class="ld-stat-l">Always</span>
       </div>
     </div>
-  </div>
-
-  <!-- Stats -->
-  <div class="land-stats">
-    <div class="land-stat"><div class="land-stat-n">3,399</div><div class="land-stat-l">Opening variants tracked</div></div>
-    <div class="land-stat"><div class="land-stat-n">10</div><div class="land-stat-l">Move categories · Brilliant to Blunder</div></div>
-    <div class="land-stat"><div class="land-stat-n">100%</div><div class="land-stat-l">Free to analyze</div></div>
-    <div class="land-stat"><div class="land-stat-n">11</div><div class="land-stat-l">Piece styles available</div></div>
-  </div>
-
-  <!-- Features -->
-  <div class="land-features">
-    <div class="land-feat">
-      <span class="land-feat-ico">🎯</span>
-      <div class="land-feat-t">Accuracy Score</div>
-      <div class="land-feat-s">Get precise accuracy percentages for both players using the same WDL formula as Chess.com — calibrated against Stockfish data.</div>
-    </div>
-    <div class="land-feat">
-      <span class="land-feat-ico">💡</span>
-      <div class="land-feat-t">Best Move Arrow</div>
-      <div class="land-feat-s">See exactly what the engine recommends at every position. Navigate moves and explore alternative variations freely.</div>
-    </div>
-    <div class="land-feat">
-      <span class="land-feat-ico">📖</span>
-      <div class="land-feat-t">Opening Recognition</div>
-      <div class="land-feat-s">Automatically identifies your opening from a database of 3,399 ECO variants — from Ruy López to the Sicilian Najdorf.</div>
-    </div>
-    <div class="land-feat">
-      <span class="land-feat-ico">🔍</span>
-      <div class="land-feat-t">Variation Explorer</div>
-      <div class="land-feat-s">Click any piece during analysis to explore what would have happened. The engine evaluates each variation in real time.</div>
-    </div>
-    <div class="land-feat">
-      <span class="land-feat-ico">⚡</span>
-      <div class="land-feat-t">Stockfish Engine</div>
-      <div class="land-feat-s">Upgrade to Stockfish depth 14-18 for professional-level analysis. Loads once per session, runs entirely in your browser.</div>
-    </div>
-    <div class="land-feat">
-      <span class="land-feat-ico">♟</span>
-      <div class="land-feat-t">Play vs Engine</div>
-      <div class="land-feat-s">Train against Stockfish at 6 difficulty levels — from Beginner to Master. Drag pieces or click to move.</div>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <div class="land-footer">
-    <span>◈ <strong>ChessReview</strong> · Free chess game analysis</span>
-    <span>Built with Stockfish · CBurnett pieces (CC-BY-SA) · Lichess opening database</span>
   </div>
 </div>
 
@@ -2325,30 +2341,39 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape')closeCustomize();
 });
 
+// ── LANDING ────────────────────────────────────────────────────
+(function initLanding(){
+  const board = document.getElementById('ld-board');
+  if(!board) return;
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++){
+    const sq=document.createElement('div');
+    sq.className='ld-sq '+((r+c)%2===0?'l':'d');
+    sq.style.animation=`fadeInSq .9s ${(r*8+c)*0.012}s both`;
+    board.appendChild(sq);
+  }
+  const style=document.createElement('style');
+  style.textContent='@keyframes fadeInSq{from{opacity:0}to{opacity:1}}';
+  document.head.appendChild(style);
+})();
+
+function hideLanding(){
+  const lp=document.getElementById('landing');
+  if(lp){lp.classList.add('out');setTimeout(()=>{lp.style.display='none';},520);}
+}
+function launchApp(){hideLanding();}
+function launchWithPGN(){
+  const pgn=(document.getElementById('land-pgn')||{}).value||'';
+  if(pgn.trim()) document.getElementById('pgn-in').value=pgn.trim();
+  hideLanding();
+  if(pgn.trim()) setTimeout(()=>doAnalyze(),580);
+}
+function loadSampleAndLaunch(key){
+  hideLanding();
+  setTimeout(()=>loadSample(key),580);
+}
+
 // Init
 renderBoard(new Chess(),null,null,null,null);
-
-// ── LANDING PAGE LOGIC ─────────────────────────────────────────
-function hideLanding() {
-  const lp = document.getElementById('landing-page');
-  if (lp) { lp.style.opacity='0'; lp.style.transition='opacity .3s'; setTimeout(()=>lp.classList.add('hidden'),300); }
-}
-function launchApp() {
-  hideLanding();
-}
-function launchWithPGN() {
-  const pgn = document.getElementById('land-pgn').value.trim();
-  if (pgn) document.getElementById('pgn-in').value = pgn;
-  hideLanding();
-  if (pgn) setTimeout(() => doAnalyze(), 350);
-}
-function loadSampleAndLaunch(key) {
-  hideLanding();
-  setTimeout(() => loadSample(key), 350);
-}
-function showPricing() {
-  alert('🚀 Premium plans coming soon!\n\nPro: Unlimited analysis + Stockfish depth 18\nElite: AI coach insights + weekly reports\n\nJoin the waitlist → chess-review-one.vercel.app');
-}
 
 </script>
 </body>
