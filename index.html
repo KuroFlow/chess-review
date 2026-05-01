@@ -18,7 +18,6 @@
     --text: #f1f1fb;
     --text2: #b8b8dd;
     --text3: #7777aa;
-    --success: #22c55e;
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -110,12 +109,10 @@ body {
     z-index: 3;
 }
 
-.sq:hover .piece {
-    transform: scale(1.12);
-}
+.sq:hover .piece { transform: scale(1.12); }
 
 /* Legal Moves */
-.sq .legal-dot {
+.legal-dot {
     position: absolute;
     width: 20px;
     height: 20px;
@@ -124,7 +121,7 @@ body {
     z-index: 5;
 }
 
-.sq .legal-capture {
+.legal-capture {
     position: absolute;
     inset: 8px;
     border: 5px solid rgba(255, 70, 70, 0.75);
@@ -164,11 +161,33 @@ body {
 
 /* Right Panel */
 .rpanel {
-    width: 300px;
+    width: 320px;
     background: var(--bg1);
     border-left: 1px solid rgba(255,255,255,0.08);
     padding: 20px;
     overflow-y: auto;
+}
+
+.nav-row {
+    display: flex;
+    gap: 8px;
+    margin: 15px 0;
+    justify-content: center;
+}
+
+.nav-btn {
+    padding: 8px 14px;
+    background: var(--bg2);
+    border: none;
+    border-radius: 10px;
+    color: var(--text2);
+    cursor: pointer;
+}
+
+.mv-list {
+    font-family: 'Inconsolata', monospace;
+    font-size: 14.5px;
+    line-height: 1.6;
 }
 </style>
 </head>
@@ -204,12 +223,15 @@ body {
 
     <!-- RIGHT PANEL -->
     <div class="rpanel">
-        <h3 style="margin-bottom:20px;color:var(--accent);">Game Analysis</h3>
-        <div style="background:var(--bg2);padding:16px;border-radius:12px;margin-bottom:16px;">
-            <strong>Accuracy</strong><br>
-            <span style="font-size:28px;font-weight:700;color:#22c55e;">87.4%</span>
+        <h3 style="margin-bottom:15px;color:var(--accent);">Analysis</h3>
+        
+        <div class="nav-row">
+            <button class="nav-btn" onclick="prevMove()">←</button>
+            <button class="nav-btn" onclick="gotoStart()">Inicio</button>
+            <button class="nav-btn" onclick="nextMove()">→</button>
         </div>
-        <div id="move-list" style="font-family:monospace;font-size:14px;"></div>
+
+        <div id="move-list" class="mv-list"></div>
     </div>
 </div>
 
@@ -219,6 +241,8 @@ let chess = new Chess();
 let flipped = false;
 let selectedSquare = null;
 let legalMoves = [];
+let moveHistory = [];
+let currentMoveIndex = 0;
 
 // ==================== RENDER BOARD ====================
 function renderBoard() {
@@ -246,14 +270,13 @@ function renderBoard() {
                 sqEl.appendChild(pEl);
             }
 
-            // Legal move highlights
             if (legalMoves.includes(square)) {
                 const indicator = document.createElement('div');
                 indicator.className = piece ? 'legal-capture' : 'legal-dot';
                 sqEl.appendChild(indicator);
             }
 
-            sqEl.addEventListener('click', () => handleClick(square));
+            sqEl.addEventListener('click', () => handleSquareClick(square));
             grid.appendChild(sqEl);
         }
     }
@@ -268,19 +291,20 @@ function getPieceSymbol(color, type) {
 }
 
 // ==================== MOVE LOGIC ====================
-function handleClick(square) {
+function handleSquareClick(square) {
     if (selectedSquare) {
         const move = chess.move({ from: selectedSquare, to: square, promotion: 'q' });
         if (move) {
+            moveHistory = chess.history();
+            currentMoveIndex = moveHistory.length;
             renderBoard();
+            updateMoveList();
             selectedSquare = null;
             legalMoves = [];
-            updateMoveList();
             return;
         }
     }
 
-    // Select new piece
     const piece = chess.get(square);
     if (piece && piece.color === chess.turn()) {
         selectedSquare = square;
@@ -294,11 +318,38 @@ function handleClick(square) {
 }
 
 function updateMoveList() {
-    const list = document.getElementById('move-list');
-    list.innerHTML = '<strong>Moves played:</strong><br>' + chess.history().join(' • ');
+    const container = document.getElementById('move-list');
+    let html = '<strong>Moves:</strong><br>';
+    moveHistory.forEach((move, i) => {
+        if (i % 2 === 0) html += `${Math.floor(i/2)+1}. `;
+        html += `${move} `;
+    });
+    container.innerHTML = html;
 }
 
-// Flip Board
+function prevMove() {
+    if (currentMoveIndex > 0) {
+        currentMoveIndex--;
+        chess.undo();
+        renderBoard();
+        updateMoveList();
+    }
+}
+
+function nextMove() {
+    // Simple simulation - in real version would load from PGN
+    alert("Próxima jugada (se implementará completamente en la siguiente fase)");
+}
+
+function gotoStart() {
+    chess.reset();
+    moveHistory = [];
+    currentMoveIndex = 0;
+    renderBoard();
+    updateMoveList();
+}
+
+// Flip
 function doFlip() {
     flipped = !flipped;
     renderBoard();
@@ -310,13 +361,24 @@ function startAnalysis() {
     setTimeout(() => {
         document.getElementById('landing').style.display = 'none';
         renderBoard();
+        updateMoveList();
     }, 600);
 }
 
+// Keyboard support
+document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') prevMove();
+    if (e.key === 'ArrowRight') nextMove();
+});
+
 // Init
 window.onload = () => {
-    renderBoard();
-    console.log("%cChessReview — Fase 4 completada (Tablero + Movimientos funcionales)", "color:#6366f1; font-weight:bold");
+    console.log("%cChessReview — Fase 5 completa (Movimientos + Navegación)", "color:#6366f1; font-weight:bold");
+    // Auto start for testing
+    setTimeout(() => {
+        document.getElementById('landing').style.display = 'none';
+        renderBoard();
+    }, 800);
 };
 </script>
 
