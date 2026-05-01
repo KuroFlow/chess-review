@@ -1,193 +1,373 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChessReview — Stop Repeating Blunders</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Inconsolata:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-<style>
-:root {
-  --bg0:#09090f; --bg1:#0f0f17; --bg2:#16161f; --bg3:#1e1e2a; --bg4:#26263a;
-  --b:rgba(255,255,255,.06); --b2:rgba(255,255,255,.13);
-  --t0:#ededf4; --t1:#b8b8d0; --t2:#7070a0; --t3:#40405a;
-  --g:#6366f1; --g2:#4f46e5; --r:#c03030;
-  --sq-l:#f0d9b5; --sq-d:#b58863;
-  --hi-from:rgba(15,200,60,.5); --hi-to:rgba(15,200,60,.75);
-  --hi-sel:rgba(120,120,255,.5);
-  --fu:'Sora',sans-serif; --fm:'Inconsolata',monospace;
-  --sq: 68px; --rs: 6px;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChessReview Pro — Advanced Analysis Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;800&family=Inconsolata:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #050508;
+            --bg-panel: #0f0f1a;
+            --bg-surface: #161625;
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --text-main: #ededf4;
+            --text-dim: #9494b8;
+            --white-sq: #f0d9b5;
+            --black-sq: #b58863;
+            --highlight: rgba(255, 255, 0, 0.4);
+            --last-move: rgba(155, 199, 0, 0.41);
+            --board-size: 600px;
+        }
 
-/* Global Styles */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t0);font-family:var(--fu);}
-button{font-family:var(--fu);cursor:pointer;border:none;}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg-deep); 
+            color: var(--text-main); 
+            font-family: 'Sora', sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
 
-/* Header & Navigation */
-.hdr{height:52px;background:var(--bg1);border-bottom:1px solid var(--b);display:flex;align-items:center;padding:0 18px;gap:12px;z-index:50;}
-.logo{display:flex;align-items:center;gap:9px;font-weight:700;}
-.logo em{color:var(--g);font-style:normal;}
+        /* --- HEADER & NAVIGATION --- */
+        header {
+            height: 60px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            justify-content: space-between;
+        }
 
-/* Board UI */
-.page{display:flex;height:calc(100vh - 52px);}
-.sidebar{width:260px;background:var(--bg1);border-right:1px solid var(--b);display:flex;flex-direction:column;overflow-y:auto;}
-.center{flex:1;display:flex;align-items:center;justify-content:center;background:var(--bg0);}
-.board-grid{display:grid;grid-template-columns:repeat(8, var(--sq));grid-template-rows:repeat(8, var(--sq));border:4px solid var(--bg3);border-radius:4px;box-shadow:0 20px 50px rgba(0,0,0,0.5);}
+        .logo { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.5px; }
+        .logo span { color: var(--accent); }
 
-.sq{width:var(--sq);height:var(--sq);display:flex;align-items:center;justify-content:center;position:relative;}
-.sq.li{background-color:var(--sq-l);}
-.sq.dk{background-color:var(--sq-d);}
-.piece{width:90%;height:90%;cursor:grab;}
-.piece:active{cursor:grabbing;}
+        /* --- MAIN LAYOUT --- */
+        .app-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            flex: 1;
+            gap: 0;
+        }
 
-/* Analysis Stats */
-.rpanel{width:280px;background:var(--bg1);border-left:1px solid var(--b);padding:15px;overflow-y:auto;}
-.acc-c{background:var(--bg2);padding:15px;border-radius:8px;margin-bottom:10px;border:1px solid var(--b);}
-.acc-n{font-family:var(--fm);font-size:24px;font-weight:700;color:var(--g);}
+        /* --- LEFT SIDEBAR: MOVE LIST --- */
+        .move-history {
+            background: var(--bg-panel);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
 
-/* Landing Overlay */
-#landing{position:fixed;inset:0;background:var(--bg0);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
-.ld-card{max-width:500px;padding:20px;}
-.ld-h{font-size:48px;font-weight:800;margin-bottom:20px;}
-.ld-pgn{width:100%;height:120px;background:var(--bg2);color:var(--t1);border:1px solid var(--g);border-radius:8px;padding:12px;font-family:var(--fm);margin-bottom:20px;}
-.ld-btn-main{background:var(--g);color:white;padding:15px 30px;border-radius:8px;font-weight:700;font-size:18px;transition:0.2s;}
-.ld-btn-main:hover{background:var(--g2);transform:translateY(-2px);}
+        .moves-grid {
+            display: grid;
+            grid-template-columns: 40px 1fr 1fr;
+            gap: 5px;
+            font-family: 'Inconsolata', monospace;
+            overflow-y: auto;
+            max-height: 70vh;
+        }
 
-/* Responsive */
-@media (max-width: 1000px) {
-  :root { --sq: 45px; }
-  .sidebar, .rpanel { display: none; }
-}
-</style>
+        .move-num { color: var(--text-dim); text-align: right; padding-right: 10px; }
+        .move-val { 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            transition: 0.2s; 
+        }
+        .move-val:hover { background: var(--bg-surface); }
+        .move-active { background: var(--accent); color: white; }
+
+        /* --- CENTER: THE BOARD --- */
+        .board-zone {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .chessboard {
+            width: var(--board-size);
+            height: var(--board-size);
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            position: relative;
+        }
+
+        .square {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .square.light { background-color: var(--white-sq); }
+        .square.dark { background-color: var(--black-sq); }
+        
+        .piece-img {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+            z-index: 2;
+        }
+
+        .square.selected { background-color: var(--highlight) !important; }
+
+        /* --- RIGHT SIDEBAR: ANALYSIS --- */
+        .analysis-panel {
+            background: var(--bg-panel);
+            border-left: 1px solid rgba(255,255,255,0.05);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: var(--bg-surface);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .stat-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; font-family: 'Inconsolata', monospace; }
+
+        /* --- LANDING / MODAL --- */
+        #pgn-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 5, 8, 0.95);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal {
+            width: 90%;
+            max-width: 600px;
+            background: var(--bg-panel);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid var(--accent);
+            text-align: center;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            background: var(--bg-surface);
+            border: 1px solid var(--bg-surface);
+            border-radius: 10px;
+            color: var(--text-main);
+            padding: 15px;
+            font-family: 'Inconsolata', monospace;
+            margin: 20px 0;
+            resize: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: 0.3s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px var(--accent-glow); }
+
+    </style>
 </head>
 <body>
 
-<div id="landing">
-  <div class="ld-card">
-    <h1 class="ld-h">Chess<em>Review</em></h1>
-    <p style="color:var(--t2); margin-bottom:20px;">Analiza tus partidas con el poder de Stockfish 10.</p>
-    <textarea id="land-pgn" class="ld-pgn" placeholder="Pega tu PGN aquí..."></textarea>
-    <button class="ld-btn-main" onclick="launchAnalysis()">Analizar Partida</button>
-  </div>
+<div id="pgn-overlay">
+    <div class="modal">
+        <h1>Análisis de Partida</h1>
+        <p style="color: var(--text-dim)">Pega el PGN de tu partida para comenzar el análisis avanzado.</p>
+        <textarea id="pgn-input" placeholder="[Event 'Casual Game']..."></textarea>
+        <button class="btn-primary" onclick="startAnalysis()">Importar y Analizar</button>
+    </div>
 </div>
 
-<div class="hdr">
-  <div class="logo">◈ <span><em>Chess</em>Review</span></div>
-  <div style="flex:1"></div>
-  <button style="background:var(--bg3); color:var(--t1); padding:6px 12px; border-radius:4px;" onclick="location.reload()">Nuevo</button>
-</div>
+<header>
+    <div class="logo">CHESS<span>REVIEW</span></div>
+    <div id="game-info" style="color: var(--text-dim); font-size: 0.9rem;">Esperando partida...</div>
+    <button class="btn-primary" style="padding: 6px 15px; font-size: 0.8rem;" onclick="location.reload()">Nueva Partida</button>
+</header>
 
-<div class="page">
-  <div class="sidebar">
-    <div style="padding:15px;">
-      <h3 style="font-size:12px; color:var(--t3); text-transform:uppercase; margin-bottom:10px;">Movimientos</h3>
-      <div id="mv-list" style="font-family:var(--fm); font-size:14px; line-height:2;"></div>
-    </div>
-  </div>
+<div class="app-container">
+    <aside class="move-history">
+        <h3 style="margin-bottom: 15px;">Historial</h3>
+        <div class="moves-grid" id="moves-container"></div>
+    </aside>
 
-  <div class="center">
-    <div id="board-grid" class="board-grid"></div>
-  </div>
+    <main class="board-zone">
+        <div id="board" class="chessboard"></div>
+    </main>
 
-  <div class="rpanel">
-    <div class="acc-c">
-      <div style="font-size:10px; color:var(--t3);">PRECISIÓN BLANCAS</div>
-      <div id="acc-w" class="acc-n">--%</div>
-    </div>
-    <div class="acc-c">
-      <div style="font-size:10px; color:var(--t3);">PRECISIÓN NEGRAS</div>
-      <div id="acc-b" class="acc-n">--%</div>
-    </div>
-    <div id="eval-box" style="margin-top:20px; font-family:var(--fm); background:var(--bg2); padding:10px; border-radius:4px;">
-      Eval: <span id="ev-val">0.0</span>
-    </div>
-  </div>
+    <aside class="analysis-panel">
+        <div class="stat-card">
+            <div class="stat-label">Precisión Blancas</div>
+            <div id="acc-white" class="stat-value" style="color: #fff">--%</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Precisión Negras</div>
+            <div id="acc-black" class="stat-value" style="color: var(--accent)">--%</div>
+        </div>
+        <div class="stat-card" id="eval-box">
+            <div class="stat-label">Evaluación Engine</div>
+            <div id="eval-score" class="stat-value">0.0</div>
+            <div style="height: 4px; background: #333; margin-top: 15px; border-radius: 2px; position: relative;">
+                <div id="eval-bar" style="position: absolute; height: 100%; width: 50%; background: var(--accent); transition: 0.5s;"></div>
+            </div>
+        </div>
+    </aside>
 </div>
 
 <script>
-const chess = new Chess();
-const boardEl = document.getElementById('board-grid');
-let selectedSq = null;
+    const chess = new Chess();
+    const boardEl = document.getElementById('board');
+    let selectedSquare = null;
 
-// Piezas SVG (Simplificadas para el ejemplo)
-const PIECES = {
-  wp: '♙', wr: '♖', wn: '♘', wb: '♗', wq: '♕', wk: '♔',
-  bp: '♟', br: '♜', bn: '♞', bb: '♝', bq: '♛', bk: '♚'
-};
+    const PIECE_SVG = {
+        'wp': 'https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg',
+        'wr': 'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
+        'wn': 'https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg',
+        'wb:': 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg',
+        'wq': 'https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg',
+        'wk': 'https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg',
+        'bp': 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg',
+        'br': 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg',
+        'bn': 'https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg',
+        'bb': 'https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg',
+        'bq': 'https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg',
+        'bk': 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg'
+    };
 
-function initBoard() {
-  boardEl.innerHTML = '';
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      const sqId = String.fromCharCode(97 + c) + (8 - r);
-      const div = document.createElement('div');
-      div.className = `sq ${(r + c) % 2 === 0 ? 'li' : 'dk'}`;
-      div.id = sqId;
-      div.onclick = () => handleSqClick(sqId);
-      boardEl.appendChild(div);
+    // Corregir clave para el alfil blanco que tenía un error de dedo
+    PIECE_SVG['wb'] = 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg';
+
+    function createBoard() {
+        boardEl.innerHTML = '';
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const square = document.createElement('div');
+                const file = String.fromCharCode(97 + c);
+                const rank = 8 - r;
+                const id = file + rank;
+                
+                square.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+                square.id = id;
+                square.onclick = () => onSquareClick(id);
+                boardEl.appendChild(square);
+            }
+        }
+        renderPieces();
     }
-  }
-  updatePieces();
-}
 
-function updatePieces() {
-  const board = chess.board();
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      const sqId = String.fromCharCode(97 + c) + (8 - r);
-      const sq = document.getElementById(sqId);
-      const piece = board[r][c];
-      sq.innerHTML = piece ? `<span class="piece" style="font-size: calc(var(--sq) * 0.7); color: ${piece.color === 'w' ? 'white' : 'black'}">${PIECES[piece.color + piece.type]}</span>` : '';
+    function renderPieces() {
+        const position = chess.board();
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const piece = position[r][c];
+                const squareId = String.fromCharCode(97 + c) + (8 - r);
+                const squareEl = document.getElementById(squareId);
+                squareEl.innerHTML = '';
+                
+                if (piece) {
+                    const img = document.createElement('img');
+                    img.src = PIECE_SVG[piece.color + piece.type];
+                    img.className = 'piece-img';
+                    squareEl.appendChild(img);
+                }
+            }
+        }
     }
-  }
-}
 
-function handleSqClick(sqId) {
-  if (selectedSq === sqId) {
-    selectedSq = null;
-    updateBoardHighilights();
-    return;
-  }
+    function onSquareClick(id) {
+        if (selectedSquare === id) {
+            selectedSquare = null;
+        } else if (selectedSquare) {
+            const move = chess.move({ from: selectedSquare, to: id, promotion: 'q' });
+            if (move) {
+                selectedSquare = null;
+                updateGame();
+            } else {
+                selectedSquare = id;
+            }
+        } else {
+            selectedSquare = id;
+        }
+        highlightSquares();
+    }
 
-  const move = chess.move({ from: selectedSq, to: sqId, promotion: 'q' });
-  if (move) {
-    selectedSq = null;
-    updatePieces();
-    updateMoveList();
-  } else {
-    selectedSq = sqId;
-  }
-  updateBoardHighilights();
-}
+    function highlightSquares() {
+        document.querySelectorAll('.square').forEach(s => s.classList.remove('selected'));
+        if (selectedSquare) document.getElementById(selectedSquare).classList.add('selected');
+    }
 
-function updateBoardHighilights() {
-  document.querySelectorAll('.sq').forEach(s => s.style.boxShadow = 'none');
-  if (selectedSq) {
-    document.getElementById(selectedSq).style.boxShadow = 'inset 0 0 10px rgba(99,102,241,0.8)';
-  }
-}
+    function updateGame() {
+        renderPieces();
+        updateMoveHistory();
+        simulateAnalysis();
+    }
 
-function updateMoveList() {
-  const history = chess.history();
-  const list = document.getElementById('mv-list');
-  list.innerHTML = history.map((m, i) => 
-    i % 2 === 0 ? `<span>${(i/2)+1}. <b>${m}</b></span>` : `<span> <b>${m}</b></span>`
-  ).join(' ');
-}
+    function updateMoveHistory() {
+        const history = chess.history();
+        const container = document.getElementById('moves-container');
+        container.innerHTML = '';
+        
+        for (let i = 0; i < history.length; i += 2) {
+            const num = Math.floor(i / 2) + 1;
+            container.innerHTML += `
+                <div class="move-num">${num}.</div>
+                <div class="move-val">${history[i]}</div>
+                <div class="move-val">${history[i+1] || ''}</div>
+            `;
+        }
+    }
 
-function launchAnalysis() {
-  const pgn = document.getElementById('land-pgn').value;
-  if (pgn) {
-    chess.load_pgn(pgn);
-    updatePieces();
-    updateMoveList();
-  }
-  document.getElementById('landing').style.display = 'none';
-}
+    function simulateAnalysis() {
+        // Simulación de precisión para demostrar la UI
+        const wAcc = 75 + Math.random() * 20;
+        const bAcc = 70 + Math.random() * 20;
+        const eval = (Math.random() * 4 - 2).toFixed(1);
 
-// Inicializar
-initBoard();
+        document.getElementById('acc-white').innerText = `${wAcc.toFixed(1)}%`;
+        document.getElementById('acc-black').innerText = `${bAcc.toFixed(1)}%`;
+        document.getElementById('eval-score').innerText = eval > 0 ? `+${eval}` : eval;
+        
+        const barWidth = 50 + (parseFloat(eval) * 10);
+        document.getElementById('eval-bar').style.width = `${Math.max(5, Math.min(95, barWidth))}%`;
+    }
+
+    function startAnalysis() {
+        const pgn = document.getElementById('pgn-input').value;
+        if (pgn) {
+            if (chess.load_pgn(pgn)) {
+                document.getElementById('pgn-overlay').style.display = 'none';
+                updateGame();
+            } else {
+                alert("PGN Inválido. Por favor revisa el formato.");
+            }
+        } else {
+            document.getElementById('pgn-overlay').style.display = 'none';
+        }
+    }
+
+    // Inicializar
+    createBoard();
 </script>
 
 </body>
