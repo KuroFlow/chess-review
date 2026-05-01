@@ -18,6 +18,7 @@
     --text: #f1f1fb;
     --text2: #b8b8dd;
     --text3: #7777aa;
+    --success: #22c55e;
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -54,8 +55,7 @@ body {
 
 /* LANDING */
 #landing {
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: radial-gradient(circle at 50% 20%, rgba(99,102,241,0.18), transparent 65%), var(--bg0);
     display: flex;
     align-items: center;
@@ -63,39 +63,31 @@ body {
     z-index: 1000;
 }
 
-.ld-card {
-    background: rgba(18,18,32,0.95);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(99,102,241,0.3);
-    border-radius: 28px;
-    padding: 60px 50px;
-    max-width: 640px;
-    text-align: center;
-    box-shadow: 0 30px 90px rgba(0,0,0,0.7);
+/* MAIN LAYOUT */
+.page {
+    display: flex;
+    height: calc(100vh - 70px);
 }
 
-/* BOARD AREA */
 .center {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 25px;
     padding: 20px;
-    gap: 20px;
     background: var(--bg0);
 }
 
-.board-container {
-    position: relative;
-}
-
+/* BOARD */
 .board-grid {
     display: grid;
+    grid-template-columns: repeat(8, 72px);
+    grid-template-rows: repeat(8, 72px);
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 25px 80px rgba(0,0,0,0.85),
-                0 0 0 1px rgba(255,255,255,0.15) inset;
-    transition: all 0.3s ease;
+                inset 0 0 0 1px rgba(255,255,255,0.12);
 }
 
 .sq {
@@ -106,35 +98,36 @@ body {
     justify-content: center;
     position: relative;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
 }
 
+.sq.li { background: #f0d9b5; }
+.sq.dk { background: #b58863; }
+
 .piece {
-    width: 88%;
-    height: 88%;
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
-    transition: transform 0.2s ease;
+    font-size: 54px;
+    transition: transform 0.25s ease;
+    z-index: 3;
 }
 
 .sq:hover .piece {
-    transform: scale(1.08);
+    transform: scale(1.12);
 }
 
 /* Legal Moves */
-.legal-move::after {
-    content: '';
+.sq .legal-dot {
     position: absolute;
-    width: 22px;
-    height: 22px;
-    background: rgba(80, 200, 120, 0.5);
+    width: 20px;
+    height: 20px;
+    background: rgba(80, 220, 120, 0.55);
     border-radius: 50%;
     z-index: 5;
 }
 
-.legal-capture {
+.sq .legal-capture {
     position: absolute;
-    inset: 6px;
-    border: 4px solid rgba(255, 80, 80, 0.7);
+    inset: 8px;
+    border: 5px solid rgba(255, 70, 70, 0.75);
     border-radius: 50%;
     z-index: 5;
 }
@@ -144,18 +137,18 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .ev-num {
     font-family: 'Inconsolata', monospace;
-    font-size: 17px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
     color: var(--text2);
 }
 
 .ev-bar {
-    width: 20px;
+    width: 22px;
     height: 580px;
     background: #1f1f2e;
     border-radius: 9999px;
@@ -165,15 +158,17 @@ body {
 
 .ev-fill {
     width: 100%;
-    height: 50%;
     background: linear-gradient(to top, #a5b4fc, #6366f1);
-    transition: height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Buttons */
-button {
-    cursor: pointer;
-    transition: all 0.2s;
+/* Right Panel */
+.rpanel {
+    width: 300px;
+    background: var(--bg1);
+    border-left: 1px solid rgba(255,255,255,0.08);
+    padding: 20px;
+    overflow-y: auto;
 }
 </style>
 </head>
@@ -181,175 +176,136 @@ button {
 
 <!-- LANDING -->
 <div id="landing">
-    <div class="ld-card">
-        <div class="logo" style="justify-content:center;font-size:34px;margin-bottom:28px;">
-            ◈ <span style="background:linear-gradient(90deg,#6366f1,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">ChessReview</span>
-        </div>
-        <h1 style="font-size:52px;font-weight:800;line-height:1.1;letter-spacing:-2.5px;margin-bottom:20px;">
+    <div style="background:rgba(18,18,32,0.95);backdrop-filter:blur(20px);border:1px solid rgba(99,102,241,0.3);border-radius:28px;padding:60px 50px;max-width:640px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,0.7);">
+        <div style="font-size:34px;margin-bottom:24px;">◈ ChessReview</div>
+        <h1 style="font-size:52px;font-weight:800;line-height:1.05;letter-spacing:-2.5px;margin-bottom:20px;">
             Stop losing to<br><em>your own mistakes</em>
         </h1>
-        <p style="font-size:19px;color:var(--text2);margin-bottom:40px;">
-            Professional chess analysis with beautiful board and smart insights.
-        </p>
-        <button onclick="launchWithPGN()" style="width:100%;padding:18px;font-size:18px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;border-radius:16px;font-weight:700;">
+        <button onclick="startAnalysis()" style="width:100%;padding:18px;font-size:18px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;border-radius:16px;font-weight:700;">
             Analyze My Game
         </button>
     </div>
 </div>
 
-<!-- HEADER -->
-<div class="hdr">
-    <div class="logo">
-        ◈ <span style="color:var(--accent)">ChessReview</span>
-    </div>
-    <div style="flex:1"></div>
-    <button onclick="doFlip()" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:var(--text2);padding:10px 20px;border-radius:12px;">Flip Board</button>
-    <button onclick="showCustomize()" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:var(--text2);padding:10px 20px;border-radius:12px;">Customize</button>
-</div>
-
-<div style="display:flex;height:calc(100vh - 70px);">
+<div class="page">
     <!-- CENTER -->
     <div class="center">
         <div class="ev-bar-container">
             <div id="ev-num">+0.00</div>
             <div class="ev-bar">
-                <div class="ev-fill" id="ev-fill"></div>
+                <div class="ev-fill" id="ev-fill" style="height:52%;"></div>
             </div>
         </div>
 
-        <div class="board-container">
+        <div id="board-container">
             <div class="board-grid" id="board-grid"></div>
         </div>
     </div>
-</div>
 
-<!-- CUSTOMIZE MODAL -->
-<div id="customize-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:2000;align-items:center;justify-content:center;">
-    <div style="background:var(--bg2);padding:30px;border-radius:20px;width:520px;max-height:90vh;overflow-y:auto;">
-        <h3 style="margin-bottom:20px;">Customize Board</h3>
-        
-        <div style="margin-bottom:20px;">
-            <strong>Board Theme</strong>
-            <div id="theme-options" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px;"></div>
+    <!-- RIGHT PANEL -->
+    <div class="rpanel">
+        <h3 style="margin-bottom:20px;color:var(--accent);">Game Analysis</h3>
+        <div style="background:var(--bg2);padding:16px;border-radius:12px;margin-bottom:16px;">
+            <strong>Accuracy</strong><br>
+            <span style="font-size:28px;font-weight:700;color:#22c55e;">87.4%</span>
         </div>
-
-        <div>
-            <strong>Piece Set</strong>
-            <div id="piece-options" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;"></div>
-        </div>
-
-        <button onclick="closeCustomize()" style="margin-top:25px;width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;">Close</button>
+        <div id="move-list" style="font-family:monospace;font-size:14px;"></div>
     </div>
 </div>
 
 <script>
-// ==================== CONFIG ====================
+// ==================== GLOBALS ====================
 let chess = new Chess();
 let flipped = false;
-let currentTheme = 'classic';
-let currentPieceSet = 'unicode';
+let selectedSquare = null;
+let legalMoves = [];
 
-// Board Themes
-const BOARD_THEMES = {
-    classic:  { light: '#f0d9b5', dark: '#b58863', name: 'Classic' },
-    walnut:   { light: '#e8d0a8', dark: '#8b5e3c', name: 'Walnut' },
-    marine:   { light: '#d4e8f0', dark: '#4a90b8', name: 'Marine' },
-    forest:   { light: '#e8f0d0', dark: '#5a8a42', name: 'Forest' },
-    midnight: { light: '#a0a0cc', dark: '#2a2a4a', name: 'Midnight' },
-    emerald:  { light: '#eeeed2', dark: '#769656', name: 'Emerald' }
-};
-
-// Piece rendering
-function getPieceHTML(color, type) {
-    const unicodePieces = {
-        'w': { p: '♙', r: '♖', n: '♘', b: '♗', q: '♕', k: '♔' },
-        'b': { p: '♟', r: '♜', n: '♞', b: '♝', q: '♛', k: '♚' }
-    };
-    
-    if (currentPieceSet === 'unicode') {
-        return `<span style="font-size:52px;">${unicodePieces[color][type]}</span>`;
-    }
-    
-    // Default to unicode for now (we can add SVG sets later)
-    return `<span style="font-size:52px;">${unicodePieces[color][type]}</span>`;
-}
-
-// Render Board
+// ==================== RENDER BOARD ====================
 function renderBoard() {
     const grid = document.getElementById('board-grid');
     grid.innerHTML = '';
-    grid.style.gridTemplateColumns = 'repeat(8, 72px)';
-    grid.style.gridTemplateRows = 'repeat(8, 72px)';
 
-    const boardArray = chess.board();
-    const ranks = flipped ? Array.from({length:8}, (_,i)=>i) : Array.from({length:8}, (_,i)=>7-i);
-    const files = flipped ? Array.from({length:8}, (_,i)=>7-i) : Array.from({length:8}, (_,i)=>i);
+    const board = chess.board();
+    const ranks = flipped ? [0,1,2,3,4,5,6,7] : [7,6,5,4,3,2,1,0];
+    const files = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
 
     for (let r of ranks) {
         for (let c of files) {
-            const squareName = String.fromCharCode(97 + c) + (r + 1);
+            const square = String.fromCharCode(97 + c) + (r + 1);
             const isLight = (r + c) % 2 === 0;
-            const theme = BOARD_THEMES[currentTheme];
 
-            const sq = document.createElement('div');
-            sq.className = `sq ${isLight ? 'li' : 'dk'}`;
-            sq.style.background = isLight ? theme.light : theme.dark;
-            sq.dataset.square = squareName;
+            const sqEl = document.createElement('div');
+            sqEl.className = `sq ${isLight ? 'li' : 'dk'}`;
+            sqEl.dataset.square = square;
 
-            const piece = boardArray[7-r][c];
+            const piece = board[7 - r][c];
             if (piece) {
-                const pieceDiv = document.createElement('div');
-                pieceDiv.className = 'piece';
-                pieceDiv.innerHTML = getPieceHTML(piece.color, piece.type);
-                sq.appendChild(pieceDiv);
+                const pEl = document.createElement('div');
+                pEl.className = 'piece';
+                pEl.innerHTML = getPieceSymbol(piece.color, piece.type);
+                sqEl.appendChild(pEl);
             }
 
-            sq.addEventListener('click', () => handleSquareClick(squareName));
-            grid.appendChild(sq);
+            // Legal move highlights
+            if (legalMoves.includes(square)) {
+                const indicator = document.createElement('div');
+                indicator.className = piece ? 'legal-capture' : 'legal-dot';
+                sqEl.appendChild(indicator);
+            }
+
+            sqEl.addEventListener('click', () => handleClick(square));
+            grid.appendChild(sqEl);
         }
     }
 }
 
-// Click handler
-function handleSquareClick(square) {
-    // Basic move logic (will be expanded in next phases)
-    console.log("Clicked:", square);
-    // For now just log - full move logic in next phase
+function getPieceSymbol(color, type) {
+    const map = {
+        'w': { p: '♙', r: '♖', n: '♘', b: '♗', q: '♕', k: '♔' },
+        'b': { p: '♟', r: '♜', n: '♞', b: '♝', q: '♛', k: '♚' }
+    };
+    return map[color][type];
 }
 
-// Flip
+// ==================== MOVE LOGIC ====================
+function handleClick(square) {
+    if (selectedSquare) {
+        const move = chess.move({ from: selectedSquare, to: square, promotion: 'q' });
+        if (move) {
+            renderBoard();
+            selectedSquare = null;
+            legalMoves = [];
+            updateMoveList();
+            return;
+        }
+    }
+
+    // Select new piece
+    const piece = chess.get(square);
+    if (piece && piece.color === chess.turn()) {
+        selectedSquare = square;
+        legalMoves = chess.moves({ square: square, verbose: true }).map(m => m.to);
+        renderBoard();
+    } else {
+        selectedSquare = null;
+        legalMoves = [];
+        renderBoard();
+    }
+}
+
+function updateMoveList() {
+    const list = document.getElementById('move-list');
+    list.innerHTML = '<strong>Moves played:</strong><br>' + chess.history().join(' • ');
+}
+
+// Flip Board
 function doFlip() {
     flipped = !flipped;
     renderBoard();
 }
 
-// Customize Modal
-function showCustomize() {
-    const modal = document.getElementById('customize-modal');
-    modal.style.display = 'flex';
-    
-    // Render themes
-    const themeDiv = document.getElementById('theme-options');
-    themeDiv.innerHTML = '';
-    Object.keys(BOARD_THEMES).forEach(key => {
-        const th = BOARD_THEMES[key];
-        const btn = document.createElement('div');
-        btn.style.cssText = `background:${th.dark};height:60px;border-radius:8px;cursor:pointer;border:3px solid ${currentTheme===key?'#6366f1':'transparent'};`;
-        btn.onclick = () => {
-            currentTheme = key;
-            renderBoard();
-            showCustomize(); // refresh modal
-        };
-        themeDiv.appendChild(btn);
-    });
-}
-
-function closeCustomize() {
-    document.getElementById('customize-modal').style.display = 'none';
-}
-
-// Launch
-function launchWithPGN() {
+// Start Analysis
+function startAnalysis() {
     document.getElementById('landing').style.opacity = '0';
     setTimeout(() => {
         document.getElementById('landing').style.display = 'none';
@@ -360,8 +316,9 @@ function launchWithPGN() {
 // Init
 window.onload = () => {
     renderBoard();
-    console.log("%cChessReview - Fase 3 cargada con tablero atractivo", "color:#6366f1;font-weight:bold");
+    console.log("%cChessReview — Fase 4 completada (Tablero + Movimientos funcionales)", "color:#6366f1; font-weight:bold");
 };
 </script>
+
 </body>
 </html>
