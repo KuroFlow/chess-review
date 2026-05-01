@@ -62,6 +62,17 @@ body {
     z-index: 1000;
 }
 
+.ld-card {
+    background: rgba(18,18,32,0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 28px;
+    padding: 60px 50px;
+    max-width: 640px;
+    text-align: center;
+    box-shadow: 0 30px 90px rgba(0,0,0,0.7);
+}
+
 /* MAIN LAYOUT */
 .page {
     display: flex;
@@ -168,6 +179,18 @@ body {
     overflow-y: auto;
 }
 
+.pgn-ta {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    color: var(--text2);
+    font-family: 'Inconsolata', monospace;
+    padding: 12px;
+    resize: vertical;
+    min-height: 100px;
+}
+
 .nav-row {
     display: flex;
     gap: 8px;
@@ -188,6 +211,7 @@ body {
     font-family: 'Inconsolata', monospace;
     font-size: 14.5px;
     line-height: 1.6;
+    margin-top: 10px;
 }
 </style>
 </head>
@@ -195,19 +219,33 @@ body {
 
 <!-- LANDING -->
 <div id="landing">
-    <div style="background:rgba(18,18,32,0.95);backdrop-filter:blur(20px);border:1px solid rgba(99,102,241,0.3);border-radius:28px;padding:60px 50px;max-width:640px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,0.7);">
+    <div class="ld-card">
         <div style="font-size:34px;margin-bottom:24px;">◈ ChessReview</div>
         <h1 style="font-size:52px;font-weight:800;line-height:1.05;letter-spacing:-2.5px;margin-bottom:20px;">
             Stop losing to<br><em>your own mistakes</em>
         </h1>
-        <button onclick="startAnalysis()" style="width:100%;padding:18px;font-size:18px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;border-radius:16px;font-weight:700;">
-            Analyze My Game
+        <p style="font-size:19px;color:var(--text2);margin-bottom:30px;">
+            Paste your PGN and get a beautiful, professional analysis.
+        </p>
+        <button onclick="startFromLanding()" style="width:100%;padding:18px;font-size:18px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;border-radius:16px;font-weight:700;">
+            Analyze My Game — Free
         </button>
     </div>
 </div>
 
 <div class="page">
-    <!-- CENTER -->
+    <!-- LEFT SIDEBAR -->
+    <div style="width:280px;background:var(--bg1);border-right:1px solid rgba(255,255,255,0.08);padding:20px;overflow-y:auto;">
+        <div style="margin-bottom:20px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text3);margin-bottom:8px;">YOUR PGN</div>
+            <textarea id="pgn-input" class="pgn-ta" placeholder="Paste your game PGN here..."></textarea>
+        </div>
+        <button onclick="doAnalyze()" style="width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-weight:600;">
+            Analyze with Stockfish
+        </button>
+    </div>
+
+    <!-- CENTER BOARD -->
     <div class="center">
         <div class="ev-bar-container">
             <div id="ev-num">+0.00</div>
@@ -226,9 +264,9 @@ body {
         <h3 style="margin-bottom:15px;color:var(--accent);">Analysis</h3>
         
         <div class="nav-row">
-            <button class="nav-btn" onclick="prevMove()">←</button>
-            <button class="nav-btn" onclick="gotoStart()">Inicio</button>
-            <button class="nav-btn" onclick="nextMove()">→</button>
+            <button class="nav-btn" onclick="prevMove()">← Prev</button>
+            <button class="nav-btn" onclick="gotoStart()">Start</button>
+            <button class="nav-btn" onclick="nextMove()">Next →</button>
         </div>
 
         <div id="move-list" class="mv-list"></div>
@@ -327,6 +365,7 @@ function updateMoveList() {
     container.innerHTML = html;
 }
 
+// Navigation
 function prevMove() {
     if (currentMoveIndex > 0) {
         currentMoveIndex--;
@@ -337,8 +376,7 @@ function prevMove() {
 }
 
 function nextMove() {
-    // Simple simulation - in real version would load from PGN
-    alert("Próxima jugada (se implementará completamente en la siguiente fase)");
+    alert("Próxima jugada - Se expandirá en la siguiente fase con Stockfish");
 }
 
 function gotoStart() {
@@ -349,23 +387,32 @@ function gotoStart() {
     updateMoveList();
 }
 
+// Analyze
+function doAnalyze() {
+    const pgn = document.getElementById('pgn-input').value.trim();
+    if (!pgn) {
+        alert("Por favor pega una partida PGN en el panel izquierdo.");
+        return;
+    }
+    alert("Analizando partida con Stockfish...\n\n(En la siguiente fase implementaremos el análisis real)");
+    // Aquí iría la lógica completa de análisis
+}
+
+function startFromLanding() {
+    document.getElementById('landing').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('landing').style.display = 'none';
+        renderBoard();
+    }, 600);
+}
+
 // Flip
 function doFlip() {
     flipped = !flipped;
     renderBoard();
 }
 
-// Start Analysis
-function startAnalysis() {
-    document.getElementById('landing').style.opacity = '0';
-    setTimeout(() => {
-        document.getElementById('landing').style.display = 'none';
-        renderBoard();
-        updateMoveList();
-    }, 600);
-}
-
-// Keyboard support
+// Keyboard
 document.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft') prevMove();
     if (e.key === 'ArrowRight') nextMove();
@@ -373,12 +420,7 @@ document.addEventListener('keydown', e => {
 
 // Init
 window.onload = () => {
-    console.log("%cChessReview — Fase 5 completa (Movimientos + Navegación)", "color:#6366f1; font-weight:bold");
-    // Auto start for testing
-    setTimeout(() => {
-        document.getElementById('landing').style.display = 'none';
-        renderBoard();
-    }, 800);
+    console.log("%cChessReview — Fase 6 completa (PGN restaurado + Tablero funcional)", "color:#6366f1; font-weight:bold");
 };
 </script>
 
