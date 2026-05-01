@@ -1,247 +1,199 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChessReview — Analiza y Mejora tu Ajedrez</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inconsolata:wght@400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-    
-    <style>
-        :root {
-            --bg0: #0a0a0f;
-            --bg1: #111118;
-            --bg2: #1a1a23;
-            --bg3: #24242f;
-            --accent: #6366f1;
-            --accent2: #4f46e5;
-            --text: #f1f1f9;
-            --text2: #b8b8d8;
-            --text3: #77779e;
-            --success: #22c55e;
-            --danger: #f87171;
-            
-            --sq-l: #f0d9b5;
-            --sq-d: #b58863;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChessReview — Stop Repeating Blunders</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inconsolata:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: var(--bg0);
-            color: var(--text);
-            font-family: 'Sora', system-ui, sans-serif;
-            height: 100vh;
-            overflow: hidden;
-        }
+<style>
+:root {
+    --bg0: #09090f;
+    --bg1: #111118;
+    --bg2: #1a1a24;
+    --bg3: #242430;
+    --accent: #6366f1;
+    --accent-dark: #4f46e5;
+    --text: #f0f0fa;
+    --text2: #b8b8d8;
+    --text3: #7a7aa0;
+    --success: #22c55e;
+    --danger: #ef4444;
 
-        .hdr {
-            height: 68px;
-            background: var(--bg1);
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            gap: 16px;
-            z-index: 100;
-        }
+    --sq-l: #f0d9b5;
+    --sq-d: #b58863;
+}
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        .logo em { color: var(--accent); }
+body {
+    background: var(--bg0);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+}
 
-        .mode-toggle {
-            display: flex;
-            background: var(--bg2);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 9999px;
-            padding: 4px;
-        }
+/* HEADER */
+.hdr {
+    height: 68px;
+    background: var(--bg1);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+    z-index: 100;
+}
 
-        .mode-btn {
-            padding: 8px 20px;
-            border-radius: 9999px;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 23px;
+    font-weight: 700;
+    letter-spacing: -0.6px;
+}
 
-        .mode-btn.active {
-            background: var(--accent);
-            color: white;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
-        }
+.logo em {
+    color: var(--accent);
+    font-style: normal;
+}
 
-        .page {
-            display: flex;
-            height: calc(100vh - 68px);
-            overflow: hidden;
-        }
+.mode-toggle {
+    display: flex;
+    background: var(--bg2);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9999px;
+    padding: 4px;
+}
 
-        .sidebar {
-            width: 280px;
-            background: var(--bg1);
-            border-right: 1px solid rgba(255,255,255,0.08);
-            overflow-y: auto;
-            padding: 16px;
-        }
+.mode-btn {
+    padding: 9px 22px;
+    border-radius: 9999px;
+    font-size: 14.5px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
 
-        .center {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: var(--bg0);
-        }
+.mode-btn.active {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
 
-        .rpanel {
-            width: 300px;
-            background: var(--bg1);
-            border-left: 1px solid rgba(255,255,255,0.08);
-            overflow-y: auto;
-        }
+/* LANDING MEJORADA */
+#landing {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 50% 25%, rgba(99,102,241,0.16), transparent 70%),
+                var(--bg0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: opacity 0.6s ease;
+}
 
-        /* Board */
-        .board-grid {
-            display: grid;
-            grid-template-columns: repeat(8, 68px);
-            grid-template-rows: repeat(8, 68px);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7),
-                        0 0 0 1px rgba(255,255,255,0.1) inset;
-        }
+.ld-card {
+    background: rgba(17, 17, 27, 0.96);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 28px;
+    padding: 56px 48px;
+    max-width: 620px;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
+}
 
-        .sq {
-            width: 68px;
-            height: 68px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.1s ease;
-        }
+.ld-h {
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -3px;
+    margin-bottom: 20px;
+}
 
-        .sq.li { background: var(--sq-l); }
-        .sq.dk { background: var(--sq-d); }
+.ld-h em {
+    background: linear-gradient(90deg, #6366f1, #a855f7, #db2777);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
 
-        .piece {
-            width: 82%;
-            height: 82%;
-            z-index: 2;
-        }
+.ld-sub {
+    font-size: 18.5px;
+    color: var(--text2);
+    margin-bottom: 40px;
+    line-height: 1.4;
+}
 
-        /* Landing */
-        #landing {
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at 50% 20%, rgba(99,102,241,0.18), transparent 60%),
-                        var(--bg0);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
+/* Board */
+.board-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 70px);
+    grid-template-rows: repeat(8, 70px);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.75),
+                inset 0 0 0 1px rgba(255,255,255,0.1);
+}
 
-        .ld-card {
-            background: rgba(17, 17, 24, 0.95);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(99,102,241,0.25);
-            border-radius: 24px;
-            padding: 52px 48px;
-            max-width: 580px;
-            text-align: center;
-            box-shadow: 0 30px 70px rgba(0,0,0,0.6);
-        }
+/* Botones principales */
+.sbtn-main, .ld-btn-main {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 28px;
+    font-size: 15.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
 
-        .ld-h {
-            font-size: 54px;
-            font-weight: 800;
-            line-height: 1.05;
-            letter-spacing: -2.8px;
-            margin-bottom: 20px;
-        }
+.sbtn-main:hover, .ld-btn-main:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(99, 102, 241, 0.35);
+}
 
-        .ld-h em {
-            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .ld-btn-main {
-            background: linear-gradient(135deg, #6366f1, #7c3aed);
-            color: white;
-            border: none;
-            padding: 18px 32px;
-            font-size: 17px;
-            font-weight: 700;
-            border-radius: 16px;
-            width: 100%;
-            margin-top: 20px;
-            cursor: pointer;
-            transition: all 0.25s;
-        }
-
-        .ld-btn-main:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(99,102,241,0.4);
-        }
-
-        /* Right Panel Improvements */
-        .rp {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .rp-t {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--text3);
-            margin-bottom: 12px;
-        }
-
-        /* General button style */
-        button {
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-    </style>
+/* Utilidades */
+.slbl {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+}
+</style>
 </head>
 <body>
 
-<!-- LANDING -->
+<!-- LANDING PAGE MEJORADA -->
 <div id="landing">
     <div class="ld-card">
-        <div class="logo" style="justify-content: center; margin-bottom: 32px; font-size: 32px;">
-            ◈ <span style="background: linear-gradient(90deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ChessReview</span>
+        <div class="logo" style="justify-content:center; font-size:32px; margin-bottom:32px;">
+            ◈ <span style="background: linear-gradient(90deg, #6366f1, #a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">ChessReview</span>
         </div>
-        
-        <h1 class="ld-h">Deja de perder<br>contra <em>tus propios errores</em></h1>
-        <p style="font-size: 18px; color: var(--text2); margin-bottom: 40px;">
-            Análisis profesional con Stockfish.<br>
-            Descubre tus blunders, brilliants y patrones.
-        </p>
 
-        <textarea id="land-pgn" rows="4" placeholder="Pega tu partida en formato PGN aquí..." 
-            style="width: 100%; background: #1f1f2a; border: 2px solid #6366f133; border-radius: 16px; padding: 18px; color: #ddd; font-family: 'Inconsolata', monospace; resize: vertical; min-height: 110px;"></textarea>
+        <h1 class="ld-h">Stop losing<br>to <em>your own</em> mistakes</h1>
+        <p class="ld-sub">Paste your game and get a professional review with Stockfish.<br>Discover every blunder, missed opportunity and brilliant move.</p>
 
-        <button onclick="launchWithPGN()" class="ld-btn-main">
-            Analizar mi partida — Gratis
+        <textarea id="land-pgn" rows="5" placeholder="Paste your PGN here..." 
+            style="width:100%; background:#1f1f2a; border:2px solid rgba(99,102,241,0.3); border-radius:16px; padding:18px; color:#ddd; font-family:'Inconsolata', monospace; resize:vertical; min-height:130px;"></textarea>
+
+        <button onclick="launchWithPGN()" class="ld-btn-main" style="width:100%; margin-top:20px; padding:18px; font-size:17px;">
+            Analyze My Game — Free
         </button>
 
         <button onclick="loadSampleAndLaunch('immortal')" 
-            style="margin-top: 12px; width: 100%; padding: 16px; background: transparent; border: 2px solid rgba(255,255,255,0.15); color: #aaa; border-radius: 16px; font-weight: 500;">
-            Ver partida famosa (Demo)
+            style="width:100%; margin-top:12px; padding:16px; background:transparent; border:2px solid rgba(255,255,255,0.15); color:#bbb; border-radius:14px; font-weight:500;">
+            Try Demo Game
         </button>
     </div>
 </div>
@@ -249,54 +201,34 @@
 <!-- HEADER -->
 <div class="hdr">
     <div class="logo">
-        ◈ <span style="color: var(--accent);">ChessReview</span>
+        ◈ <span style="color:var(--accent)">ChessReview</span>
     </div>
-    
+
     <div class="mode-toggle">
-        <button class="mode-btn active" id="mode-analyze" onclick="setMode('analyze')">Análisis</button>
-        <button class="mode-btn" id="mode-play" onclick="setMode('play')">Jugar</button>
+        <button class="mode-btn active" id="mode-analyze" onclick="setMode('analyze')">Analysis</button>
+        <button class="mode-btn" id="mode-play" onclick="setMode('play')">Play vs Engine</button>
     </div>
 
-    <div style="flex: 1;"></div>
+    <div style="flex:1"></div>
 
-    <button onclick="openCustomize()" style="background: transparent; border: 1px solid rgba(255,255,255,0.15); color: var(--text2); padding: 8px 16px; border-radius: 12px;">Personalizar</button>
-    <button onclick="doFlip()" style="background: transparent; border: 1px solid rgba(255,255,255,0.15); color: var(--text2); padding: 8px 16px; border-radius: 12px;">⇄ Voltear</button>
-    <button onclick="doAnalyze()" style="background: var(--accent); color: white; border: none; padding: 10px 24px; border-radius: 12px; font-weight: 600;">Analizar</button>
+    <button onclick="doFlip()" style="background:transparent; border:1px solid rgba(255,255,255,0.15); color:var(--text2); padding:8px 18px; border-radius:12px;">Flip Board</button>
+    <button onclick="openCustomize()" style="background:transparent; border:1px solid rgba(255,255,255,0.15); color:var(--text2); padding:8px 18px; border-radius:12px;">Customize</button>
+    <button onclick="doAnalyze()" style="background:var(--accent); color:white; border:none; padding:10px 26px; border-radius:12px; font-weight:600;">Analyze PGN</button>
 </div>
 
-<div class="page">
-    <!-- Sidebar, Center Board y Right Panel se mantienen similares al original pero con mejor estilo -->
-    <div class="sidebar">
-        <!-- Contenido del sidebar (PGN, profundidad, etc.) -->
-        <p style="color: var(--text3); text-align: center; margin-top: 40px;">Sidebar mejorado próximamente...</p>
-    </div>
-
-    <div class="center">
-        <div id="main-ui" style="display: none;">
-            <div id="board-container">
-                <div class="board-grid" id="board-grid"></div>
-            </div>
-        </div>
-        
-        <div id="intro" style="text-align: center; color: var(--text3);">
-            <h2>Bienvenido a ChessReview</h2>
-            <p>Pega una partida PGN para comenzar el análisis.</p>
-        </div>
-    </div>
-
-    <div class="rpanel">
-        <!-- Panel derecho mejorado -->
-        <div class="rp">
-            <div class="rp-t">Evaluación</div>
-            <div style="height: 80px; background: var(--bg2); border-radius: 12px; margin-top: 8px;"></div>
+<div class="page" style="display:flex; height:calc(100vh - 68px);">
+    <!-- Sidebar, Board y Right Panel irán aquí en siguientes fases -->
+    <div style="flex:1; display:flex; align-items:center; justify-content:center; color:var(--text3);">
+        <div style="text-align:center;">
+            <h2>Board Area</h2>
+            <p>Tablero + funcionalidades principales se añadirán en la próxima fase.</p>
         </div>
     </div>
 </div>
 
 <script>
-// Variables globales básicas
+// Variables globales
 let mode = 'analyze';
-let flipped = false;
 
 // Funciones básicas
 function setMode(m) {
@@ -307,39 +239,39 @@ function setMode(m) {
 
 function launchWithPGN() {
     const pgn = document.getElementById('land-pgn').value.trim();
-    if (pgn) {
-        document.getElementById('landing').style.display = 'none';
-        // Aquí iría la lógica de análisis
-        alert("Análisis iniciado con PGN (versión mejorada en desarrollo)");
-    } else {
-        alert("Por favor pega una partida PGN");
+    if (!pgn) {
+        alert("Por favor pega una partida en formato PGN");
+        return;
     }
+    document.getElementById('landing').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('landing').style.display = 'none';
+        alert("¡Análisis iniciado! (Próxima fase incluirá el análisis completo con Stockfish)");
+    }, 600);
 }
 
 function loadSampleAndLaunch(key) {
-    document.getElementById('landing').style.display = 'none';
-    alert(`Cargando partida de ejemplo: ${key}`);
-    // Aquí cargarías la partida famosa
+    document.getElementById('landing').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('landing').style.display = 'none';
+        alert(`Cargando partida de ejemplo: ${key}`);
+    }, 500);
 }
 
 function doFlip() {
-    flipped = !flipped;
-    alert("Tablero volteado (funcionalidad completa en desarrollo)");
+    alert("Tablero volteado (funcionalidad completa en la siguiente fase)");
 }
 
 function doAnalyze() {
-    alert("Iniciando análisis profundo con Stockfish...");
-    // Aquí iría toda la lógica de análisis mejorada
+    alert("Iniciando análisis con Stockfish...");
 }
 
 function openCustomize() {
-    alert("Panel de personalización abierto (mejorado en próxima versión)");
+    alert("Personalización del tablero (en desarrollo)");
 }
 
 // Inicialización
-window.onload = () => {
-    console.log("%cChessReview Pro v1.1 - Versión Mejorada cargada", "color: #6366f1; font-weight: bold;");
-};
+console.log("%cChessReview v1.1 - Versión Mejorada cargada correctamente", "color:#6366f1; font-weight:bold;");
 </script>
 
 </body>
