@@ -8,19 +8,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 <style>
 :root{
-  --bg0:#09090f; --bg1:#0f0f17; --bg2:#16161f; --bg3:#1e1e2a; --bg4:#26263a;
-  --b:rgba(255,255,255,.06); --b2:rgba(255,255,255,.13);
-  --t0:#ededf4; --t1:#b8b8d0; --t2:#7070a0; --t3:#40405a;
-  --g:#6366f1; --g2:#4f46e5; --r:#c03030;
+  --bg0:#0a0a0c; --bg1:#111118; --bg2:#16161e; --bg3:#1d1d27; --bg4:#252534;
+  --b:rgba(255,255,255,.055); --b2:rgba(255,255,255,.12);
+  --t0:#eeeef5; --t1:#b5b5ce; --t2:#6c6c96; --t3:#3e3e58;
+  --g:#8b5cf6; --g2:#7c3aed; --r:#c03030;
+  --em:#10b981; --em2:#059669;
+  --vi:#8b5cf6; --vi2:#a78bfa;
   --sq-l:#f0d9b5; --sq-d:#b58863;
-  --hi-from:rgba(15,200,60,.5); --hi-to:rgba(15,200,60,.75);
-  --hi-sel:rgba(120,120,255,.5);
+  --hi-from:rgba(16,185,129,.45); --hi-to:rgba(16,185,129,.7);
+  --hi-sel:rgba(139,92,246,.55);
   --fu:'Sora',sans-serif; --fm:'Inconsolata',monospace;
 }
 /* Global tabular nums for all monospace number displays */
 .sv,.acc-n,.rt-v,.ev-num,.nav-lbl,.cml,.pacc,.cap-adv{font-feature-settings:"tnum" 1,"zero" 1;}
-  --sq:68px; --r:9px; --rs:6px;
-}
+:root{--sq:68px; --r:9px; --rs:6px;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;overflow:hidden;}
 body{background:var(--bg0);color:var(--t0);font-family:var(--fu);}
@@ -32,25 +33,25 @@ button{font-family:var(--fu);cursor:pointer;}
 /* ── HEADER ─────────────────────────── */
 .hdr{height:52px;background:var(--bg1);border-bottom:1px solid var(--b);display:flex;align-items:center;padding:0 18px;gap:12px;flex-shrink:0;position:relative;z-index:50;}
 .logo{display:flex;align-items:center;gap:9px;}
-.logo-icon{font-size:24px;filter:drop-shadow(0 0 10px rgba(99,102,241,.5));}
+.logo-icon{font-size:24px;filter:drop-shadow(0 0 10px rgba(139,92,246,.5));}
 .logo-name{font-size:17px;font-weight:700;letter-spacing:-.5px;}
 .logo-name em{color:var(--g);font-style:normal;}
 .mode-toggle{display:flex;background:var(--bg3);border:1px solid var(--b);border-radius:20px;padding:3px;gap:2px;margin-left:6px;}
 .mode-btn{border:none;background:transparent;color:var(--t2);padding:4px 13px;border-radius:16px;font-size:11px;font-weight:600;transition:all .2s;letter-spacing:.3px;}
-.mode-btn.active{background:#6366f1;color:#fff;box-shadow:0 1px 8px rgba(99,102,241,.4);}
+.mode-btn.active{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;box-shadow:0 2px 10px rgba(139,92,246,.4);}
 .hdr-spacer{flex:1;}
 .eng-chip{display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--b2);border-radius:14px;padding:4px 11px;font-size:10px;color:var(--t2);font-family:var(--fm);}
 .eng-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.dot-ok{background:var(--g);box-shadow:0 0 5px var(--g);}
+.dot-ok{background:var(--g);box-shadow:0 0 7px var(--g);}
 .dot-busy{background:#e8c13a;box-shadow:0 0 5px #e8c13a;animation:pls 1s infinite;}
 .dot-off{background:var(--t3);}
-.dot-sf{background:#a5b4fc;box-shadow:0 0 5px #a5b4fc;}
+.dot-sf{background:#c4b5fd;box-shadow:0 0 5px #c4b5fd;}
 @keyframes pls{0%,100%{opacity:1;}50%{opacity:.25;}}
 .hbtn{background:transparent;border:1px solid var(--b2);color:var(--t1);border-radius:var(--rs);padding:5px 13px;font-size:11px;font-weight:500;transition:all .15s;}
 .hbtn:hover{background:var(--bg3);color:var(--t0);}
-.hbtn-g{background:#6366f1;border-color:transparent;color:#fff;font-weight:600;}
-.hbtn-g:hover{background:#4f46e5;box-shadow:0 4px 14px rgba(99,102,241,.4);}
-.hbtn-r{background:var(--r);border-color:transparent;color:#ffcccc;display:none;}
+.hbtn-g{background:#8b5cf6;border-color:transparent;color:#fff;font-weight:600;}
+.hbtn-g:hover{background:#7c3aed;box-shadow:0 4px 14px rgba(139,92,246,.4);}
+.hbtn-r{background:#c03030;border-color:transparent;color:#ffcccc;display:none;}
 
 /* ── PAGE ───────────────────────────── */
 .page{display:flex;height:calc(100vh - 52px);overflow:hidden;}
@@ -62,15 +63,15 @@ button{font-family:var(--fu);cursor:pointer;}
 .ss{padding:13px 13px;border-bottom:1px solid var(--b);}
 .slbl{font-size:8.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-bottom:7px;}
 .pgn-ta{width:100%;background:var(--bg0);border:1px solid var(--b);border-radius:var(--rs);color:var(--t1);font-family:var(--fm);font-size:10px;line-height:1.7;padding:8px 10px;resize:none;height:88px;outline:none;transition:border-color .15s;}
-.pgn-ta:focus{border-color:#6366f1;box-shadow:0 0 0 2px rgba(99,102,241,.12);}
+.pgn-ta:focus{border-color:#8b5cf6;box-shadow:0 0 0 2px rgba(139,92,246,.12);}
 .pgn-ta::placeholder{color:var(--t3);}
-.sbtn-main{width:100%;background:#6366f1;border:none;color:#fff;border-radius:var(--rs);padding:9px;font-size:12px;font-weight:600;transition:background .15s;margin-top:8px;}
-.sbtn-main:hover{background:#4f46e5;}
+.sbtn-main{width:100%;background:#8b5cf6;border:none;color:#fff;border-radius:var(--rs);padding:9px;font-size:12px;font-weight:600;transition:background .15s;margin-top:8px;}
+.sbtn-main:hover{background:#7c3aed;}
 .depth-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
 .depth-grid-6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;}
 .db{background:var(--bg2);border:1px solid var(--b);color:var(--t2);border-radius:var(--rs);padding:7px 4px;font-size:10px;text-align:center;line-height:1.4;transition:all .15s;}
 .db:hover{background:var(--bg3);color:var(--t1);}
-.db.sel{background:var(--bg4);border-color:#6366f1;color:#818cf8;font-weight:600;}
+.db.sel{background:var(--bg4);border-color:#8b5cf6;color:#a78bfa;font-weight:600;}
 .db small{font-size:8px;opacity:.6;display:block;}
 .depth-note{font-size:9px;color:var(--t3);text-align:center;margin-top:5px;}
 .sample{background:var(--bg2);border:1px solid var(--b);color:var(--t1);border-radius:var(--rs);padding:8px 9px;font-size:10.5px;text-align:left;display:flex;align-items:center;gap:7px;width:100%;transition:all .15s;margin-bottom:5px;}
@@ -80,18 +81,18 @@ button{font-family:var(--fu);cursor:pointer;}
 .sample-inf{display:flex;flex-direction:column;gap:1px;}
 .sample-n{font-weight:500;font-size:10.5px;}
 .sample-y{font-size:9px;color:var(--t3);font-family:var(--fm);}
-.sf-box{background:linear-gradient(135deg,rgba(13,10,40,.9),rgba(20,15,60,.6));border:1px solid rgba(99,102,241,.2);border-radius:var(--r);padding:11px;display:flex;flex-direction:column;gap:7px;}
-.sf-box-t{font-size:11px;font-weight:600;color:#a5b4fc;}
+.sf-box{background:linear-gradient(135deg,rgba(13,10,40,.9),rgba(20,15,60,.6));border:1px solid rgba(139,92,246,.2);border-radius:var(--r);padding:11px;display:flex;flex-direction:column;gap:7px;}
+.sf-box-t{font-size:11px;font-weight:600;color:#c4b5fd;}
 .sf-box-s{font-size:9.5px;color:#5a7a9a;line-height:1.5;}
-.sf-btn{background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.25);color:#a5b4fc;border-radius:var(--rs);padding:7px;font-size:11px;font-weight:600;width:100%;transition:all .15s;}
-.sf-btn:hover:not(:disabled){background:rgba(99,102,241,.22);}
+.sf-btn{background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);color:#c4b5fd;border-radius:var(--rs);padding:7px;font-size:11px;font-weight:600;width:100%;transition:all .15s;}
+.sf-btn:hover:not(:disabled){background:rgba(139,92,246,.22);}
 .sf-btn:disabled{opacity:.5;cursor:not-allowed;}
 .prog-box{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:10px;display:none;flex-direction:column;gap:6px;}
 .prog-box.vis{display:flex;}
 .prog-hd{display:flex;justify-content:space-between;font-size:11px;color:var(--t1);}
 .prog-hd span{font-family:var(--fm);font-size:10px;color:var(--g);}
 .prog-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
-.prog-fill{height:100%;background:#6366f1;width:0%;transition:width .1s;border-radius:2px;}
+.prog-fill{height:100%;background:#8b5cf6;width:0%;transition:width .1s;border-radius:2px;}
 .prog-sub{font-size:9px;color:var(--t3);font-family:var(--fm);line-height:1.4;}
 .st{font-size:10px;color:var(--t3);padding:6px 13px;text-align:center;}
 
@@ -103,7 +104,7 @@ button{font-family:var(--fu);cursor:pointer;}
 .cap-piece{font-size:13px;line-height:1;display:inline-block;}
 .cap-piece-w{color:#fff8ee;text-shadow:0 0 2px #000;}
 .cap-piece-b{color:#1a1208;text-shadow:0 0 2px rgba(255,255,255,.2);}
-.cap-adv{font-size:10px;font-family:var(--fm);color:#818cf8;font-weight:600;margin-left:4px;}
+.cap-adv{font-size:10px;font-family:var(--fm);color:#a78bfa;font-weight:600;margin-left:4px;}
 .pav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;border:2px solid transparent;}
 .pav-w{background:rgba(240,220,180,.12);border-color:rgba(240,220,180,.18);}
 .pav-b{background:rgba(20,18,14,.6);border-color:rgba(255,255,255,.07);}
@@ -147,7 +148,7 @@ button{font-family:var(--fu);cursor:pointer;}
 /* LEGAL MOVE DOT/RING handled by .hl-m and .hl-cap */
 
 /* ── RIGHT PANEL ─────────────────────── */
-.rpanel{width:276px;flex-shrink:0;background:var(--bg1);border-left:1px solid var(--b);display:flex;flex-direction:column;overflow-y:auto;}
+.rpanel{width:282px;flex-shrink:0;background:var(--bg1);border-left:1px solid var(--b);display:flex;flex-direction:column;overflow-y:auto;}
 .rpanel::-webkit-scrollbar{width:3px;}
 .rpanel::-webkit-scrollbar-thumb{background:var(--bg4);}
 .rp{padding:11px 11px;border-bottom:1px solid var(--b);}
@@ -169,11 +170,11 @@ button{font-family:var(--fu);cursor:pointer;}
 .cico{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:800;flex-shrink:0;}
 .cnm{font-size:11.5px;color:var(--t1);}
 .sv{font-family:var(--fm);font-size:15px;font-weight:600;text-align:center;font-variant-numeric:tabular-nums;}
-.ic-br{background:#1baca6;color:#fff;}.ic-gt{background:#6e85d4;color:#fff;}.ic-bk{background:#8B7355;color:#fff;}
+.ic-br{background:#10b981;color:#fff;}.ic-gt{background:#6e85d4;color:#fff;}.ic-bk{background:#8B7355;color:#fff;}
 .ic-be{background:#5ca65c;color:#fff;}.ic-ex{background:#89c458;color:#fff;}.ic-go{background:#b8d44a;color:#1a2a00;}
 .ic-in{background:#e8c13a;color:#3a2a00;}.ic-mk{background:#e8853a;color:#fff;}.ic-ms{background:#d44a4a;color:#fff;}.ic-bl{background:#c0392b;color:#fff;}
-.vc-br{color:#1baca6;}.vc-gt{color:#6e85d4;}.vc-bk{color:#a08060;}.vc-be{color:#5ca65c;}
-.vc-ex{color:#89c458;}.vc-go{color:#c4d44a;}.vc-in{color:#a5b4fc;}.vc-mk{color:#e8853a;}.vc-ms{color:#d44a4a;}.vc-bl{color:#c0392b;}
+.vc-br{color:#10b981;}.vc-gt{color:#6e85d4;}.vc-bk{color:#a08060;}.vc-be{color:#5ca65c;}
+.vc-ex{color:#89c458;}.vc-go{color:#c4d44a;}.vc-in{color:#c4b5fd;}.vc-mk{color:#e8853a;}.vc-ms{color:#d44a4a;}.vc-bl{color:#c0392b;}
 .rt-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 .rt-c{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:8px 10px;text-align:center;}
 .rt-l{font-size:8.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
@@ -209,7 +210,17 @@ button{font-family:var(--fu);cursor:pointer;}
 .live-eval-n{font-family:var(--fm);font-size:22px;font-weight:700;}
 .live-eval-l{font-size:9px;color:var(--t3);margin-top:2px;}
 
-/* ── CUSTOMIZE MODAL ─────────────────── */
+.det-coaching{background:var(--bg3);border-radius:6px;padding:9px 10px;margin-top:7px;font-size:10.5px;color:var(--t1);line-height:1.65;border-left:2.5px solid var(--g);}
+.det-coaching.em-bl{border-left-color:#e74c3c;}
+.det-coaching.em-mk{border-left-color:#e8853a;}
+.det-coaching.em-in{border-left-color:#e8c13a;}
+.det-coaching.em-br{border-left-color:#10b981;}
+.det-coaching.em-gt{border-left-color:#a78bfa;}
+.det-eval-row{display:flex;gap:6px;margin-top:7px;}
+.det-eval-pill{background:var(--bg0);border:1px solid var(--b);border-radius:6px;padding:5px 8px;text-align:center;flex:1;}
+.det-eval-pill-l{font-size:7.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:2px;}
+.det-eval-pill-v{font-family:var(--fm);font-size:13px;font-weight:700;}
+
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;}
 .overlay.open{display:flex;}
 .modal{background:var(--bg1);border:1px solid var(--b2);border-radius:14px;width:520px;max-width:95vw;max-height:85vh;overflow-y:auto;padding:0;}
@@ -241,34 +252,34 @@ button{font-family:var(--fu);cursor:pointer;}
 #landing.out{opacity:0;pointer-events:none;}
 
 /* Animated gradient background */
-.ld-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(99,102,241,.18) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 20% 80%,rgba(124,58,237,.12) 0%,transparent 60%),#09090f;}
+.ld-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(139,92,246,.18) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 20% 80%,rgba(124,58,237,.12) 0%,transparent 60%),#09090f;}
 /* Board preview mosaic — decorative squares */
 .ld-board{position:absolute;inset:0;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);opacity:.07;pointer-events:none;}
 .ld-sq{transition:opacity .3s;}
-.ld-sq.l{background:#6366f1;}
+.ld-sq.l{background:#8b5cf6;}
 .ld-sq.d{background:#09090f;}
 
 /* Center card */
-.ld-card{position:relative;z-index:10;text-align:center;max-width:560px;padding:0 24px;}
+.ld-card{position:relative;z-index:10;text-align:center;max-width:640px;padding:40px 24px 60px;}
 .ld-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:48px;}
-.ld-logo-mark{font-size:28px;background:linear-gradient(135deg,#6366f1,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:900;letter-spacing:-2px;}
-.ld-logo-dot{width:6px;height:6px;border-radius:50%;background:#6366f1;box-shadow:0 0 12px #6366f1;flex-shrink:0;}
+.ld-logo-mark{font-size:28px;background:linear-gradient(135deg,#8b5cf6,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:900;letter-spacing:-2px;}
+.ld-logo-dot{width:6px;height:6px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 12px #8b5cf6;flex-shrink:0;}
 .ld-h{font-size:clamp(42px,8vw,80px);font-weight:800;line-height:1.0;letter-spacing:-3px;color:#ededf4;margin-bottom:16px;}
-.ld-h em{font-style:normal;background:linear-gradient(135deg,#6366f1 0%,#a855f7 50%,#ec4899 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.ld-h em{font-style:normal;background:linear-gradient(135deg,#8b5cf6 0%,#a855f7 50%,#ec4899 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .ld-sub{font-size:16px;color:rgba(237,237,244,.4);letter-spacing:-.2px;margin-bottom:44px;font-weight:400;}
 
 /* PGN drop zone */
 .ld-pgn-wrap{position:relative;margin-bottom:14px;}
-.ld-pgn{width:100%;background:rgba(255,255,255,.04);border:1.5px solid rgba(99,102,241,.25);border-radius:14px;color:#b8b8d0;font-family:'Inconsolata',monospace;font-size:12px;line-height:1.8;padding:16px 18px;resize:none;height:90px;outline:none;transition:all .2s;display:block;}
-.ld-pgn:focus{border-color:#6366f1;background:rgba(99,102,241,.06);box-shadow:0 0 0 4px rgba(99,102,241,.1);}
+.ld-pgn{width:100%;background:rgba(255,255,255,.04);border:1.5px solid rgba(139,92,246,.25);border-radius:14px;color:#b8b8d0;font-family:'Inconsolata',monospace;font-size:12px;line-height:1.8;padding:16px 18px;resize:none;height:90px;outline:none;transition:all .2s;display:block;}
+.ld-pgn:focus{border-color:#8b5cf6;background:rgba(139,92,246,.06);box-shadow:0 0 0 4px rgba(139,92,246,.1);}
 .ld-pgn::placeholder{color:rgba(237,237,244,.18);}
 
 /* Buttons */
 .ld-btns{display:flex;gap:10px;}
-.ld-btn-main{flex:1;background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;border:none;border-radius:12px;padding:16px 28px;font-size:15px;font-weight:700;cursor:pointer;transition:all .25s;font-family:'Sora',sans-serif;letter-spacing:-.3px;position:relative;overflow:hidden;}
+.ld-btn-main{flex:1;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;border:none;border-radius:12px;padding:16px 28px;font-size:15px;font-weight:700;cursor:pointer;transition:all .25s;font-family:'Sora',sans-serif;letter-spacing:-.3px;position:relative;overflow:hidden;}
 .ld-btn-main::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12),transparent);opacity:0;transition:opacity .2s;}
 .ld-btn-main:hover::before{opacity:1;}
-.ld-btn-main:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(99,102,241,.45);}
+.ld-btn-main:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(139,92,246,.45);}
 .ld-btn-main:active{transform:translateY(0);}
 .ld-btn-sample{background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.08);color:rgba(237,237,244,.5);border-radius:12px;padding:16px 20px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Sora',sans-serif;white-space:nowrap;}
 .ld-btn-sample:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.15);color:rgba(237,237,244,.8);}
@@ -283,15 +294,15 @@ button{font-family:var(--fu);cursor:pointer;}
 
 .explore-banner{
   display:none;width:100%;max-width:560px;
-  background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(124,58,237,.08));
-  border:1px solid rgba(99,102,241,.25);border-radius:var(--r);
-  padding:7px 12px;font-size:11px;color:#a5b4fc;
+  background:linear-gradient(135deg,rgba(139,92,246,.1),rgba(124,58,237,.08));
+  border:1px solid rgba(139,92,246,.25);border-radius:var(--r);
+  padding:7px 12px;font-size:11px;color:#c4b5fd;
   align-items:center;gap:8px;flex-wrap:wrap;order:5;
 }
 .explore-banner.vis{display:flex;}
 .explore-banner strong{color:#f5d060;}
-.btn-exit-explore{background:rgba(99,102,241,.18);border:1px solid rgba(99,102,241,.35);color:#a5b4fc;border-radius:var(--rs);padding:4px 10px;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--fu);margin-left:auto;}
-.btn-exit-explore:hover{background:rgba(99,102,241,.3);}
+.btn-exit-explore{background:rgba(139,92,246,.18);border:1px solid rgba(139,92,246,.35);color:#c4b5fd;border-radius:var(--rs);padding:4px 10px;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--fu);margin-left:auto;}
+.btn-exit-explore:hover{background:rgba(139,92,246,.3);}
 .explore-eval-change{font-family:var(--fm);font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;}
 .explore-eval-change.pos{background:rgba(100,200,100,.2);color:#6ecc6e;}
 .explore-eval-change.neg{background:rgba(200,80,80,.2);color:#e06060;}
@@ -302,10 +313,10 @@ button{font-family:var(--fu);cursor:pointer;}
   align-items:center;gap:6px;order:6;
 }
 .explore-nav-row.vis{display:flex;}
-.nb-explore{background:var(--bg3);border:1px solid rgba(99,102,241,.25);color:#a5b4fc;border-radius:var(--rs);padding:5px 13px;font-size:11px;font-weight:600;cursor:pointer;transition:all .12s;font-family:var(--fu);}
+.nb-explore{background:var(--bg3);border:1px solid rgba(139,92,246,.25);color:#c4b5fd;border-radius:var(--rs);padding:5px 13px;font-size:11px;font-weight:600;cursor:pointer;transition:all .12s;font-family:var(--fu);}
 .nb-explore:hover{background:var(--bg4);}
 .nb-explore:disabled{opacity:.35;cursor:not-allowed;}
-.explore-move-lbl{flex:1;text-align:center;font-family:var(--fm);font-size:12px;color:#a5b4fc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.explore-move-lbl{flex:1;text-align:center;font-family:var(--fm);font-size:12px;color:#c4b5fd;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .intro-ico{font-size:64px;opacity:.15;line-height:1;}
 .intro-h{font-size:26px;font-weight:700;color:var(--t1);}
 .intro-s{font-size:12px;color:var(--t3);max-width:270px;line-height:1.8;}
@@ -396,6 +407,50 @@ button{font-family:var(--fu);cursor:pointer;}
         <span class="ld-stat-l">Always</span>
       </div>
     </div>
+
+    <!-- PRICING -->
+    <div class="ld-pricing">
+      <div class="ld-pricing-h">Simple, transparent pricing</div>
+      <div class="ld-plans">
+        <div class="ld-plan">
+          <span class="ld-plan-badge hide">·</span>
+          <div class="ld-plan-price">Free</div>
+          <div class="ld-plan-per">forever</div>
+          <div class="ld-plan-name">Starter</div>
+          <ul class="ld-plan-feats">
+            <li>5 reviews / day</li>
+            <li>Depth 5 analysis</li>
+            <li>All 10 categories</li>
+            <li>3,399 openings</li>
+          </ul>
+        </div>
+        <div class="ld-plan featured">
+          <span class="ld-plan-badge">Most popular</span>
+          <div class="ld-plan-price">€9</div>
+          <div class="ld-plan-per">/ month</div>
+          <div class="ld-plan-name">Pro</div>
+          <ul class="ld-plan-feats">
+            <li>Unlimited reviews</li>
+            <li>Stockfish depth 14</li>
+            <li>Game history</li>
+            <li>Phase breakdown</li>
+          </ul>
+        </div>
+        <div class="ld-plan">
+          <span class="ld-plan-badge hide">·</span>
+          <div class="ld-plan-price">€19</div>
+          <div class="ld-plan-per">/ month</div>
+          <div class="ld-plan-name">Elite</div>
+          <ul class="ld-plan-feats">
+            <li>Depth 20 analysis</li>
+            <li>AI coach comments</li>
+            <li>Weekly reports</li>
+            <li>Priority support</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -429,11 +484,16 @@ button{font-family:var(--fu);cursor:pointer;}
       <button class="sbtn-main" onclick="doAnalyze()">▶ Analyze with Stockfish</button>
     </div>
     <div class="ss">
-      <div class="slbl">Depth</div>
+      <div class="slbl">Analysis Depth</div>
       <div class="depth-grid">
-        <button class="db" onclick="setDepth(3,this)">Fast<small>depth 3</small></button>
-        <button class="db sel" onclick="setDepth(5,this)">Standard<small>depth 5</small></button>
+        <button class="db" onclick="setDepth(3,this)">Quick<small>depth 3</small></button>
+        <button class="db sel" onclick="setDepth(5,this)">Balanced<small>depth 5</small></button>
         <button class="db" onclick="setDepth(7,this)">Deep<small>depth 7</small></button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:4px;" id="sf-depth-row" style="display:none;">
+        <button class="db" onclick="setDepth(10,this)" style="font-size:9px;">SF·10<small>~1s</small></button>
+        <button class="db" onclick="setDepth(14,this)" style="font-size:9px;">SF·14<small>~5s</small></button>
+        <button class="db" onclick="setDepth(18,this)" style="font-size:9px;">SF·18<small>~25s</small></button>
       </div>
       <div class="depth-note" id="depth-note">Internal engine · ~1-3s/move</div>
     </div>
@@ -492,7 +552,7 @@ button{font-family:var(--fu);cursor:pointer;}
   <!-- CENTER BOARD -->
   <div class="center" id="center">
     <div class="intro" id="intro">
-      <div class="intro-ico" style="font-size:56px;color:rgba(99,102,241,.25);">◈</div>
+      <div class="intro-ico" style="font-size:56px;color:rgba(139,92,246,.25);">◈</div>
       <div class="intro-h">ChessReview</div>
       <div class="intro-s">Paste a PGN to review your game, or switch to Play mode to train freely against the engine.</div>
     </div>
@@ -549,20 +609,67 @@ button{font-family:var(--fu);cursor:pointer;}
 
   <!-- RIGHT PANEL -->
   <div class="rpanel" id="rpanel">
+
+    <!-- 1. EVAL CHART -->
     <div class="rp">
       <div class="rp-t">Evaluation</div>
-      <div class="ev-chart"><svg id="ev-svg" width="100%" height="64" style="display:block;"></svg></div>
+      <div class="ev-chart" id="ev-chart-wrap">
+        <svg id="ev-svg" width="100%" height="72" style="display:block;"></svg>
+      </div>
     </div>
+
+    <!-- 2. ACCURACY -->
     <div class="rp" id="rp-acc">
       <div class="rp-t">Accuracy</div>
       <div class="acc-row">
-        <div class="acc-c"><div class="acc-p" id="acc-pn-w">White</div><div class="acc-n" id="acc-w">—</div><div class="acc-l">Accuracy</div></div>
-        <div class="acc-c"><div class="acc-p" id="acc-pn-b">Black</div><div class="acc-n" id="acc-b">—</div><div class="acc-l">Accuracy</div></div>
+        <div class="acc-c">
+          <div class="acc-p" id="acc-pn-w">White</div>
+          <div class="acc-n" id="acc-w">—</div>
+          <div class="acc-l">Accuracy</div>
+        </div>
+        <div class="acc-c">
+          <div class="acc-p" id="acc-pn-b">Black</div>
+          <div class="acc-n" id="acc-b">—</div>
+          <div class="acc-l">Accuracy</div>
+        </div>
       </div>
     </div>
+
+    <!-- 3. MOVE HEATMAP TIMELINE -->
+    <div class="rp" id="rp-heatmap" style="display:none;">
+      <div class="heatmap-wrap">
+        <div class="heatmap-hd">Move Timeline</div>
+        <div class="heatmap-track" id="heatmap-track" title="Click any move to jump to it"></div>
+        <div class="heatmap-labels">
+          <span id="hm-lbl-start">1</span>
+          <span id="hm-lbl-mid"></span>
+          <span id="hm-lbl-end"></span>
+        </div>
+        <div class="hm-legend">
+          <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#10b981;"></div>Brilliant</div>
+          <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#5ca65c;"></div>Best</div>
+          <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#e8c13a;"></div>Inaccuracy</div>
+          <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#e74c3c;"></div>Blunder</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. CRITICAL MOMENTS -->
+    <div class="rp" id="rp-critical" style="display:none;">
+      <div class="crit-wrap">
+        <div class="crit-hd">Critical Moments</div>
+        <div id="crit-list"><div class="crit-empty">Analyzing…</div></div>
+      </div>
+    </div>
+
+    <!-- 5. MOVE CATEGORIES -->
     <div class="rp">
       <div class="stats-tbl">
-        <div class="stats-hd"><span>Category</span><span id="sh-w" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:48px;font-size:9px;text-align:center;">♔</span><span id="sh-b" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:48px;font-size:9px;text-align:center;">♚</span></div>
+        <div class="stats-hd">
+          <span>Category</span>
+          <span id="sh-w" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:48px;font-size:9px;text-align:center;">♔</span>
+          <span id="sh-b" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:48px;font-size:9px;text-align:center;">♚</span>
+        </div>
         <div class="srow"><div class="sid"><div class="cico ic-br">!!</div><span class="cnm">Brilliant</span></div><span class="sv vc-br" id="cw-br">—</span><span class="sv vc-br" id="cb-br">—</span></div>
         <div class="srow"><div class="sid"><div class="cico ic-gt">!</div><span class="cnm">Great</span></div><span class="sv vc-gt" id="cw-gt">—</span><span class="sv vc-gt" id="cb-gt">—</span></div>
         <div class="srow"><div class="sid"><div class="cico ic-bk" style="font-size:10px;">📖</div><span class="cnm">Book</span></div><span class="sv vc-bk" id="cw-bk">—</span><span class="sv vc-bk" id="cb-bk">—</span></div>
@@ -575,6 +682,8 @@ button{font-family:var(--fu);cursor:pointer;}
         <div class="srow"><div class="sid"><div class="cico ic-bl">??</div><span class="cnm">Blunder</span></div><span class="sv vc-bl" id="cw-bl">—</span><span class="sv vc-bl" id="cb-bl">—</span></div>
       </div>
     </div>
+
+    <!-- 6. GAME RATING + PHASES -->
     <div class="rp">
       <div class="rp-t">Game Rating</div>
       <div class="rt-row">
@@ -586,20 +695,31 @@ button{font-family:var(--fu);cursor:pointer;}
       <div class="rp-t">Phases</div>
       <div class="phase-row">
         <div class="ph-c"><div class="ph-lbl">Opening</div><div class="ph-vals"><div><div class="ph-v" id="ph-op-w">—</div><div class="ph-w">♔</div></div><div><div class="ph-v" id="ph-op-b">—</div><div class="ph-w">♚</div></div></div></div>
-        <div class="ph-c"><div class="ph-lbl">Middlegame</div><div class="ph-vals"><div><div class="ph-v" id="ph-mg-w">—</div><div class="ph-w">♔</div></div><div><div class="ph-v" id="ph-mg-b">—</div><div class="ph-w">♚</div></div></div></div>
+        <div class="ph-c"><div class="ph-lbl">Midgame</div><div class="ph-vals"><div><div class="ph-v" id="ph-mg-w">—</div><div class="ph-w">♔</div></div><div><div class="ph-v" id="ph-mg-b">—</div><div class="ph-w">♚</div></div></div></div>
         <div class="ph-c"><div class="ph-lbl">Endgame</div><div class="ph-vals"><div><div class="ph-v" id="ph-eg-w">—</div><div class="ph-w">♔</div></div><div><div class="ph-v" id="ph-eg-b">—</div><div class="ph-w">♚</div></div></div></div>
       </div>
     </div>
+
+    <!-- 7. SELECTED MOVE — DEEP COACHING PANEL -->
     <div class="rp">
       <div class="rp-t">Selected Move</div>
-      <div class="det-c" id="det-c"><div style="color:var(--t3);font-size:11px;">Navigate moves to see analysis.</div></div>
+      <div class="det-c" id="det-c">
+        <div style="color:var(--t3);font-size:11px;">Navigate moves to see analysis.</div>
+      </div>
     </div>
+
+    <!-- 8. MOVE LIST -->
     <div class="rp">
       <div class="ml-wrap"><div class="ml-hd">Move List</div><div class="ml-sc" id="mv-list"></div></div>
     </div>
+
+    <!-- 9. LIVE EVAL (play mode) -->
     <div class="rp" id="rp-live" style="display:none;">
       <div class="rp-t">Live Evaluation</div>
-      <div class="live-eval"><div class="live-eval-n" id="live-eval-n">+0.00</div><div class="live-eval-l">Stockfish eval</div></div>
+      <div class="live-eval">
+        <div class="live-eval-n" id="live-eval-n">+0.00</div>
+        <div class="live-eval-l">Stockfish eval</div>
+      </div>
       <div style="margin-top:8px;font-size:10px;color:var(--t3);font-family:var(--fm);" id="live-best-move">—</div>
     </div>
   </div>
@@ -1170,7 +1290,7 @@ async function loadStockfish(){
 
       document.getElementById('sf-section').innerHTML=`
         <div class="slbl">Advanced Engine</div>
-        <div style="background:rgba(20,15,60,.5);border:1px solid rgba(99,102,241,.25);border-radius:var(--r);padding:10px 12px;font-size:11px;color:#a5b4fc;">
+        <div style="background:rgba(20,15,60,.5);border:1px solid rgba(139,92,246,.25);border-radius:var(--r);padding:10px 12px;font-size:11px;color:#c4b5fd;">
           ⚡ Stockfish listo · ${Math.round(text.length/1024)} KB
         </div>`;
       ['Rápido|10','Estándar|14','Profundo|18'].forEach((s,i)=>{
@@ -1463,7 +1583,7 @@ function showExploreDetail(moveSan, whiteEvalBefore, whiteEvalAfter) {
   document.getElementById('det-c').innerHTML = `
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
       <div style="width:26px;height:26px;border-radius:50%;background:rgba(255,180,0,.2);border:1px solid rgba(255,180,0,.4);display:flex;align-items:center;justify-content:center;font-size:13px;">🔍</div>
-      <span style="font-family:var(--fm);font-size:18px;font-weight:600;color:#a5b4fc;">${moveSan}</span>
+      <span style="font-family:var(--fm);font-size:18px;font-weight:600;color:#c4b5fd;">${moveSan}</span>
       <span style="font-size:12px;color:var(--t2);">Variante explorada</span>
     </div>
     <div style="font-size:11px;color:var(--t2);line-height:1.8;">
@@ -1648,7 +1768,7 @@ function doMove(game, from, to) {
       document.getElementById('det-c').innerHTML = `
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
           <div style="width:26px;height:26px;border-radius:50%;background:rgba(255,180,0,.2);border:1px solid rgba(255,180,0,.4);display:flex;align-items:center;justify-content:center;">⏳</div>
-          <span style="font-family:var(--fm);font-size:18px;font-weight:600;color:#a5b4fc;">${move.san}</span>
+          <span style="font-family:var(--fm);font-size:18px;font-weight:600;color:#c4b5fd;">${move.san}</span>
           <span style="font-size:12px;color:var(--t2);">Evaluando…</span>
         </div>`;
 
@@ -1761,7 +1881,7 @@ function startLiveEval(){
     if(r&&mode==='play'){
       const sc=liveGame.turn()==='w'?r.score:-r.score;
       document.getElementById('live-eval-n').textContent=(sc>=0?'+':'-')+Math.abs(sc/100).toFixed(2);
-      if(r.uci){const san=uciToSan(liveGame.fen(),r.uci);if(san)document.getElementById('live-best-move').textContent='Mejor: '+san;}
+      if(r.uci){const san=uciToSan(liveGame.fen(),r.uci);if(san)document.getElementById('live-best-move').textContent='Best: '+san;}
       setEval(sc);
     }
   }
@@ -2055,12 +2175,15 @@ async function doAnalyze(){
     });
     renderEvalChart();
     renderMoveList();
+    renderHeatmap();
+    renderCriticalMoments();
+    colorAccuracy();
   } catch(err) {
     console.error('UI update error:', err);
     setSt('⚠ Error updating panel: '+err.message);
   }
   const elapsed=Math.round((Date.now()-t0)/1000);
-  setSt(`✓ ${N} jugadas · ${usingStockfish?'Stockfish':'Internal engine'} depth ${analysisDepth} · ${elapsed}s`);
+  setSt(`✓ ${N} moves · ${usingStockfish?'Stockfish':'Internal engine'} depth ${analysisDepth} · ${elapsed}s`);
   gotoMove(results.length);
 }
 
@@ -2068,53 +2191,220 @@ async function doAnalyze(){
 //  EVAL CHART
 // ═══════════════════════════════════════════════════════
 function renderEvalChart(){
-  const svg=document.getElementById('ev-svg');
-  const W=svg.parentElement.offsetWidth||250,H=64;
-  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  if(evalH.length<2){svg.innerHTML='';return;}
-  const n=evalH.length;
-  const cl=v=>Math.max(-900,Math.min(900,v));
-  const toY=v=>H/2-(cl(v)/900)*(H/2-6);
-  const toX=i=>(i/(n-1))*W;
-  let lp=`M${toX(0)},${toY(evalH[0])}`;
-  for(let i=1;i<n;i++)lp+=` L${toX(i)},${toY(evalH[i])}`;
-  const fp=lp+` L${toX(n-1)},${H} L0,${H} Z`;
-  const dots=results.map((r,i)=>{
-    if(['best','excellent','good','book'].includes(r.cls))return'';
-    return`<circle cx="${toX(i+1)}" cy="${toY(evalH[i+1])}" r="4" fill="${CFG[r.cls].col}" opacity=".95" stroke="rgba(0,0,0,.3)" stroke-width="0.5"/>`;
+  const svg = document.getElementById('ev-svg');
+  const W = svg.parentElement.offsetWidth || 260, H = 72;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  if (evalH.length < 2) { svg.innerHTML = ''; return; }
+  const n = evalH.length;
+  const cl = v => Math.max(-900, Math.min(900, v));
+  const toY = v => H/2 - (cl(v) / 900) * (H/2 - 6);
+  const toX = i => (i / (n - 1)) * W;
+
+  // Build path points
+  const pts = evalH.map((v, i) => [toX(i), toY(v)]);
+  const linePath = 'M' + pts.map(p => p.join(',')).join(' L');
+
+  // White advantage area (above center)
+  let whiteArea = `M0,${H/2}`;
+  pts.forEach(([x, y]) => { whiteArea += ` L${x},${Math.min(y, H/2)}`; });
+  whiteArea += ` L${W},${H/2} Z`;
+
+  // Black advantage area (below center)
+  let blackArea = `M0,${H/2}`;
+  pts.forEach(([x, y]) => { blackArea += ` L${x},${Math.max(y, H/2)}`; });
+  blackArea += ` L${W},${H/2} Z`;
+
+  // Error dots (inaccuracy+)
+  const BAD_CLS = { inaccuracy:'#e8c13a', mistake:'#e8853a', miss:'#d44a4a', blunder:'#c0392b' };
+  const GOOD_CLS = { brilliant:'#10b981', great:'#a78bfa' };
+  const dots = results.map((r, i) => {
+    const x = toX(i + 1), y = toY(evalH[i + 1]);
+    if (BAD_CLS[r.cls]) {
+      return `<circle cx="${x}" cy="${y}" r="3.5" fill="${BAD_CLS[r.cls]}" opacity=".9" stroke="rgba(0,0,0,.3)" stroke-width="0.5"/>`;
+    }
+    if (GOOD_CLS[r.cls]) {
+      return `<circle cx="${x}" cy="${y}" r="3" fill="${GOOD_CLS[r.cls]}" opacity=".85" stroke="rgba(0,0,0,.2)" stroke-width="0.5"/>`;
+    }
+    return '';
   }).join('');
-  const cx=curMove>0?toX(curMove):null;
-  const cl2=cx?`<line x1="${cx}" y1="0" x2="${cx}" y2="${H}" stroke="rgba(255,255,255,.2)" stroke-width="1.5"/>`:'';
-  svg.innerHTML=`<rect width="${W}" height="${H}" fill="#0c0a08"/>
-    <line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
-    <path d="${fp}" fill="rgba(240,230,210,.09)"/>
-    <path d="${lp}" fill="none" stroke="#c4bfae" stroke-width="2" stroke-linejoin="round"/>
-    ${dots}${cl2}`;
+
+  // Current move cursor
+  const cx = curMove > 0 ? toX(curMove) : null;
+  const cursor = cx !== null
+    ? `<line x1="${cx}" y1="0" x2="${cx}" y2="${H}" stroke="rgba(139,92,246,.7)" stroke-width="1.5" stroke-dasharray="3,2"/>`
+    : '';
+
+  svg.setAttribute('height', H);
+  svg.innerHTML = `
+    <rect width="${W}" height="${H}" fill="#0a0a0c"/>
+    <line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
+    <path d="${whiteArea}" fill="rgba(240,235,220,.13)"/>
+    <path d="${blackArea}" fill="rgba(20,18,14,.45)"/>
+    <path d="${linePath}" fill="none" stroke="rgba(200,195,185,.7)" stroke-width="1.5" stroke-linejoin="round"/>
+    ${dots}${cursor}`;
 }
+
+// ═══════════════════════════════════════════════════════
+//  HEATMAP TIMELINE
+// ═══════════════════════════════════════════════════════
+function renderHeatmap() {
+  const track = document.getElementById('heatmap-track');
+  if (!track || results.length === 0) return;
+  document.getElementById('rp-heatmap').style.display = '';
+  track.innerHTML = '';
+
+  const HEATMAP_COLORS = {
+    brilliant: '#10b981', great: '#a78bfa', book: '#8b7355',
+    best: '#5ca65c', excellent: '#89c458', good: '#b8d44a',
+    inaccuracy: '#e8c13a', mistake: '#e8853a', miss: '#d44a4a', blunder: '#c0392b'
+  };
+
+  const N = results.length;
+  document.getElementById('hm-lbl-start').textContent = '1';
+  document.getElementById('hm-lbl-mid').textContent = Math.ceil(N / 4) + '';
+  document.getElementById('hm-lbl-end').textContent = Math.ceil(N / 2) + '';
+
+  results.forEach((r, i) => {
+    const sq = document.createElement('div');
+    sq.className = 'hm-sq';
+    sq.style.background = HEATMAP_COLORS[r.cls] || '#5ca65c';
+    // Brightness = severity of move quality
+    const badness = ['blunder','miss','mistake','inaccuracy'].indexOf(r.cls);
+    sq.style.opacity = badness >= 0 ? (0.65 + badness * 0.12).toFixed(2) : '0.55';
+    sq.title = `${r.n}${r.turn==='b'?'…':'.'}${r.san} — ${(CFG[r.cls]||CFG.best).label}`;
+    sq.onclick = () => gotoMove(i + 1);
+    // Highlight current move
+    if (i + 1 === curMove) {
+      sq.style.outline = '2px solid #fff';
+      sq.style.outlineOffset = '-1px';
+      sq.style.opacity = '1';
+    }
+    track.appendChild(sq);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  CRITICAL MOMENTS
+// ═══════════════════════════════════════════════════════
+function renderCriticalMoments() {
+  const list = document.getElementById('crit-list');
+  const wrap = document.getElementById('rp-critical');
+  if (!list || results.length === 0) return;
+  wrap.style.display = '';
+
+  // Find top 3 positions where evaluation swung most dramatically
+  const swings = [];
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i];
+    if (r.evalBefore === undefined || r.eval === undefined) continue;
+    // Swing from white's perspective
+    const swing = r.eval - (r.evalBefore * (r.turn === 'w' ? 1 : -1));
+    const absSw = Math.abs(swing);
+    if (absSw >= 50) { // at least 0.5 pawns swing
+      swings.push({ idx: i, r, swing, absSw });
+    }
+  }
+
+  // Sort by magnitude, take top 3
+  swings.sort((a, b) => b.absSw - a.absSw);
+  const top3 = swings.slice(0, 3);
+
+  if (top3.length === 0) {
+    list.innerHTML = '<div class="crit-empty">No major swings found — well-played game!</div>';
+    return;
+  }
+
+  list.innerHTML = top3.map(({ idx, r, swing }) => {
+    const cfg = CFG[r.cls] || CFG.best;
+    const swingStr = (swing > 0 ? '+' : '') + (swing / 100).toFixed(1);
+    const isPos = swing > 0;
+    return `
+      <div class="crit-item" onclick="gotoMove(${idx + 1})" title="Jump to move ${r.n}">
+        <span class="crit-n">Move ${r.n}</span>
+        <div class="cico ${cfg.ic}" style="width:20px;height:20px;font-size:8px;flex-shrink:0;">${cfg.sym==='📖'?'B':cfg.sym}</div>
+        <span class="crit-san" style="color:${cfg.col};">${r.san}</span>
+        <span class="crit-swing ${isPos ? 'pos' : 'neg'}">${swingStr}</span>
+        <span class="crit-lbl">${r.turn === 'w' ? '♔' : '♚'} ${ph(r.phase)}</span>
+      </div>`;
+  }).join('');
+}
+function ph(p) { return {opening:'Opening',middlegame:'Midgame',endgame:'Endgame'}[p] || ''; }
+
+
 
 // ═══════════════════════════════════════════════════════
 //  DETAIL & MOVELIST
 // ═══════════════════════════════════════════════════════
 function showDetail(r){
-  const cfg=CFG[r.cls]||CFG.best;
-  const ph={opening:'Opening',middlegame:'Middlegame',endgame:'Endgame'}[r.phase]||'';
-  const wpPct = r.wpLoss !== undefined ? Math.round(r.wpLoss*1000)/10 : null;
-  let h=`<div class="det-h">
-    <div class="cico ${cfg.ic}" style="width:28px;height:28px;font-size:10px;">${cfg.sym==='📖'?'B':cfg.sym}</div>
-    <span class="det-san" style="color:${cfg.col};">${r.san}</span>
-    <span class="det-cls">${cfg.label}</span>
-    <span class="det-ph">${ph}</span>
-  </div><div class="det-b">`;
-  if(r.cls==='book'){
-    h += `Apertura teórica${r.openingName?`: <em style="color:var(--t0);">${r.openingName}</em>`:'.'}`; 
-  } else if(r.wpLoss===0||r.cls==='best'||r.cls==='brilliant'){
-    h+='Engine\'s best move — no loss.';
-  } else {
-    const wpStr = wpPct!==null ? `WP loss: <strong style="color:var(--t0);">${wpPct}%</strong>` : '';
-    h+=`${wpStr}${r.best?` · Mejor: <span class="det-best">${r.best}</span>`:''}`;
-  }
-  h+=`<br>Eval: <span style="color:var(--t0);font-family:var(--fm);">${r.eval>=0?'+':''}${(r.eval/100).toFixed(2)}</span></div>`;
-  document.getElementById('det-c').innerHTML=h;
+  const cfg = CFG[r.cls] || CFG.best;
+  const phLbl = {opening:'Opening',middlegame:'Midgame',endgame:'Endgame'}[r.phase] || '';
+  const wpPct = r.wpLoss !== undefined ? (r.wpLoss * 100).toFixed(1) : null;
+  const evalFmt = v => (v >= 0 ? '+' : '') + (v / 100).toFixed(2);
+
+  // Coaching messages tailored to each category
+  const COACH = {
+    brilliant:  '✦ Brilliant! You found a creative sacrifice that most players would never see. This move required exceptional vision.',
+    great:      '! Great move — a strong, difficult-to-find continuation that shows positional or tactical depth.',
+    book:       r.openingName
+                  ? `📖 <strong style="color:var(--t0);">${r.openingName}</strong> — you followed theory perfectly.`
+                  : '📖 Book move — you are following established opening theory.',
+    best:       '★ Engine\'s best choice. Perfect move with zero win probability lost.',
+    excellent:  '✓ Excellent — very close to the computer\'s recommendation. Minimal advantage lost.',
+    good:       '• Good move. Keeps your position healthy and doesn\'t create weaknesses.',
+    inaccuracy: r.best
+                  ? `?! Small inaccuracy. The position stays playable, but <strong style="color:var(--g);">${r.best}</strong> was more precise.`
+                  : '?! Small inaccuracy — the position stays playable, but a more accurate option existed.',
+    mistake:    r.best
+                  ? `? Mistake — this lets your opponent improve significantly. <strong style="color:var(--g);">${r.best}</strong> would have been better.`
+                  : '? Mistake — this noticeably damages your position. Look for more forcing continuations.',
+    miss:       r.best
+                  ? `✕ Missed opportunity — you overlooked a much stronger move: <strong style="color:var(--g);">${r.best}</strong>.`
+                  : '✕ Missed a significant opportunity to gain a decisive advantage.',
+    blunder:    r.best
+                  ? `?? Blunder! This loses material or the game. The engine recommends <strong style="color:var(--g);">${r.best}</strong> instead.`
+                  : '?? Blunder — this seriously damages your position. Spend extra time studying this moment.',
+  };
+
+  const TONE = {
+    brilliant:'em-br', great:'em-gt',
+    inaccuracy:'em-in', mistake:'em-mk', miss:'em-mk', blunder:'em-bl'
+  };
+
+  const coachMsg = COACH[r.cls] || '';
+  const toneClass = TONE[r.cls] || '';
+
+  const evalBefore = r.evalBefore !== undefined ? evalFmt(r.evalBefore) : null;
+  const evalAfter  = r.eval !== undefined ? evalFmt(r.eval) : null;
+  const swingColor = (r.cls==='blunder'||r.cls==='mistake') ? '#e74c3c'
+                   : (r.cls==='brilliant') ? '#10b981' : 'var(--t1)';
+
+  const evalPills = (evalBefore !== null && evalAfter !== null) ? `
+    <div class="det-eval-row">
+      <div class="det-eval-pill">
+        <span class="det-eval-pill-l">Before</span>
+        <span class="det-eval-pill-v" style="color:var(--t1);">${evalBefore}</span>
+      </div>
+      <div class="det-eval-pill">
+        <span class="det-eval-pill-l">After</span>
+        <span class="det-eval-pill-v" style="color:${swingColor};">${evalAfter}</span>
+      </div>
+      ${wpPct !== null && parseFloat(wpPct) > 0.5 ? `
+      <div class="det-eval-pill">
+        <span class="det-eval-pill-l">WP Loss</span>
+        <span class="det-eval-pill-v" style="color:#e8c13a;">${wpPct}%</span>
+      </div>` : ''}
+    </div>` : '';
+
+  document.getElementById('det-c').innerHTML = `
+    <div class="det-h">
+      <div class="cico ${cfg.ic}" style="width:28px;height:28px;font-size:${r.cls==='book'?'9px':'10px'};">${cfg.sym==='📖'?'B':cfg.sym}</div>
+      <span class="det-san" style="color:${cfg.col};">${r.san}</span>
+      <span class="det-cls">${cfg.label}</span>
+      <span class="det-ph">${phLbl}</span>
+    </div>
+    ${coachMsg ? `<div class="det-coaching ${toneClass}">${coachMsg}</div>` : ''}
+    ${evalPills}
+  `;
 }
 
 // ── BOARD ARROWS (SVG overlay for best move) ──────────────────────
@@ -2169,8 +2459,8 @@ function drawBestMoveArrow(from, to) {
     [sx-px*arrowW, sy-py*arrowW],
   ];
   path.setAttribute('points', body.map(p=>p.join(',')).join(' '));
-  path.setAttribute('fill', 'rgba(99,102,241,0.65)');
-  path.setAttribute('stroke', 'rgba(79,70,229,0.9)');
+  path.setAttribute('fill', 'rgba(139,92,246,0.65)');
+  path.setAttribute('stroke', 'rgba(124,58,237,0.9)');
   path.setAttribute('stroke-width', '1');
   svg.appendChild(path);
 
@@ -2233,6 +2523,8 @@ function gotoMove(idx){
     hlList(-1);
   }
   renderEvalChart();
+  // Refresh heatmap highlight for current move
+  if(document.getElementById('rp-heatmap').style.display!=='none') renderHeatmap();
 }
 function prevMove(){
   if (exploreActive) {
@@ -2273,10 +2565,14 @@ function doReset(){
   results=[];evalH=[0];curMove=0;liveGame=new Chess();selectedSq=null;legalMoveSqs=[];exploreGame=null;exploreActive=false;
   document.getElementById('pgn-in').value='';document.getElementById('mv-list').innerHTML='';
   document.getElementById('ev-svg').innerHTML='';
+  document.getElementById('rp-heatmap').style.display='none';
+  document.getElementById('rp-critical').style.display='none';
+  document.getElementById('heatmap-track').innerHTML='';
+  document.getElementById('crit-list').innerHTML='<div class="crit-empty">Analyzing…</div>';
   document.getElementById('intro').style.display='flex';document.getElementById('main-ui').style.display='none';
   CATS.forEach(k=>{document.getElementById('cw-'+SHORT[k]).textContent='—';document.getElementById('cb-'+SHORT[k]).textContent='—';});
   ['acc-w','acc-b','acc-w-top','acc-b-top','gr-w','gr-b'].forEach(id=>document.getElementById(id).textContent='—');
-  hideProg();setSt('Load a game or use Play mode.');cancelled=false;
+  hideProg();setSt('Paste a PGN above, or switch to Play mode.');cancelled=false;
   document.getElementById('btn-cancel').style.display='none';document.getElementById('btn-analyze').style.display='';
 }
 
@@ -2389,6 +2685,20 @@ document.addEventListener('keydown',e=>{
   }
   if(e.key==='Escape')closeCustomize();
 });
+
+
+// ── Color accuracy numbers after rendering ─────────────────────────
+function colorAccuracy(){
+  [['acc-w','acc-w-top'],['acc-b','acc-b-top']].forEach(([id,topId])=>{
+    const el=document.getElementById(id);
+    const val=parseFloat((el.textContent||'').replace(/[~%]/g,''));
+    if(isNaN(val))return;
+    const col = val>=95?'#10b981':val>=85?'#89c458':val>=70?'#e8c13a':val>=55?'#e8853a':'#c0392b';
+    el.style.color=col;
+    const top=document.getElementById(topId);
+    if(top)top.style.color=col;
+  });
+}
 
 // ── LANDING ────────────────────────────────────────────────────
 (function initLanding(){
