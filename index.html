@@ -1955,7 +1955,7 @@ function sfRunNext(){
     sfBusy=false;
     resolve({score:ls,uci:lm});
     sfRunNext();
-  }, 60000);
+  }, 8000); // 8s max per position (was 60s — caused 60s freeze at endgame)
   const h=ev=>{
     const ln=String(ev.data);
     if(ln.startsWith('info')){
@@ -2766,14 +2766,23 @@ async function doAnalyze(){
 
     try{
       const posCh = new Chess(positions[i]);
-      if(posCh.in_checkmate()){
-        scores[i]=-29000; bestSans[i]=null; bestUCIs[i]=null; continue;
+      // Comprehensive terminal detection — chess.js in_checkmate() can miss
+      // some positions when loaded from FEN (known bug in 0.10.3)
+      const legalMoves = posCh.moves();
+      if(legalMoves.length === 0 || posCh.in_checkmate()) {
+        // No legal moves = terminal position
+        // If king is in check = checkmate (mover loses)
+        // Otherwise = stalemate (draw)
+        scores[i] = posCh.in_check() ? -29000 : 0;
+        bestSans[i]=null; bestUCIs[i]=null; continue;
       }
-      if(posCh.in_stalemate()||posCh.in_draw()||posCh.in_threefold_repetition()||posCh.insufficient_material()){
+      if(posCh.in_draw()||posCh.in_threefold_repetition()||posCh.insufficient_material()){
         scores[i]=0; bestSans[i]=null; bestUCIs[i]=null; continue;
       }
       if(usingStockfish&&sfWorker){
-        const r=await sfAnalyze(positions[i],analysisDepth);
+        // Outer 10s timeout — belt-and-suspenders beyond sfRunNext's 8s timer
+        const sfTimeout = new Promise(res => setTimeout(() => res({score:0,uci:null}), 10000));
+        const r = await Promise.race([sfAnalyze(positions[i],analysisDepth), sfTimeout]);
         scores[i]=r.score;
         bestUCIs[i]=r.uci||null;
         bestSans[i]=r.uci?uciToSan(positions[i],r.uci):null;
@@ -2848,6 +2857,8 @@ async function doAnalyze(){
     results._finalArrowFrom=fu.slice(0,2);
     results._finalArrowTo=fu.slice(2,4);
   }
+  // Cancel any in-flight Stockfish job cleanly
+  if(sfWorker&&sfBusy){sfWorker.postMessage('stop');sfBusy=false;sfQueue.length=0;}
   hideProg();document.getElementById('btn-cancel').style.display='none';document.getElementById('btn-analyze').style.display='';
   if (usingStockfish) {
     setEng('sf', 'Stockfish ✓');
