@@ -1058,17 +1058,17 @@ button{font-family:var(--fu);cursor:pointer;}
 
     <!-- 3. MOVE TIMELINE -->
     <div class="rp" id="rp-heatmap" style="display:none;">
-      <div class="timeline-wrap">
-        <div class="timeline-hd">
-          <span class="timeline-hd-lbl">Move Timeline</span>
-          <div class="timeline-legend">
-            <div class="tl-leg"><div class="tl-leg-dot" style="background:#10b981;"></div>Brilliant</div>
-            <div class="tl-leg"><div class="tl-leg-dot" style="background:#5ca65c;"></div>Best</div>
-            <div class="tl-leg"><div class="tl-leg-dot" style="background:#e8c13a;"></div>Inaccuracy</div>
-            <div class="tl-leg"><div class="tl-leg-dot" style="background:#c0392b;"></div>Blunder</div>
+      <div class="tl2-wrap">
+        <div class="tl2-hd">
+          <span class="tl2-title">Move Timeline</span>
+          <div class="tl2-legend">
+            <div class="tl2-leg"><div class="tl2-leg-dot" style="background:#10b981;"></div>Brilliant</div>
+            <div class="tl2-leg"><div class="tl2-leg-dot" style="background:#4a8a4a;"></div>Good</div>
+            <div class="tl2-leg"><div class="tl2-leg-dot" style="background:#e8c13a;"></div>Inaccuracy</div>
+            <div class="tl2-leg"><div class="tl2-leg-dot" style="background:#c0392b;"></div>Blunder</div>
           </div>
         </div>
-        <div class="timeline-track" id="heatmap-track"></div>
+        <div class="tl2-body" id="heatmap-track"></div>
       </div>
     </div>
 
@@ -1542,9 +1542,10 @@ function findBest(fen, depth) {
             bestMove = mv;
           }
         }
-        const scoreFromWhite = color === 1 ? bestScore : -bestScore;
+        // Return side-to-move score (matches Stockfish UCI convention)
+        // positive = current player is winning, regardless of color
         const uci = bestMove ? bestMove.from + bestMove.to + (bestMove.promotion || '') : null;
-        resolve({ score: scoreFromWhite, move: bestMove ? bestMove.san : null, uci });
+        resolve({ score: bestScore, move: bestMove ? bestMove.san : null, uci });
       } catch(e) {
         resolve({ score: 0, move: null, uci: null });
       }
@@ -2877,7 +2878,7 @@ function renderEvalChart(){
 }
 
 // ═══════════════════════════════════════════════════════
-//  MOVE TIMELINE — two-row (White / Black) phase-aware design
+//  MOVE TIMELINE v2 — clean two-row White/Black bars
 // ═══════════════════════════════════════════════════════
 function renderHeatmap() {
   const track = document.getElementById('heatmap-track');
@@ -2886,76 +2887,59 @@ function renderHeatmap() {
   track.innerHTML = '';
 
   const CLS_COL = {
-    brilliant:'#10b981', great:'#a78bfa', book:'#6b6b4a',
-    best:'#4a8a4a', excellent:'#6aaa3a', good:'#9ab828',
-    inaccuracy:'#d4aa1a', mistake:'#d4681a', miss:'#bb3030', blunder:'#c0392b'
-  };
-  const CLS_OPACITY = {
-    brilliant:1, great:.95, book:.4,
-    best:.55, excellent:.65, good:.6,
-    inaccuracy:.9, mistake:.95, miss:.9, blunder:1
+    brilliant:'#10b981', great:'#6b9e6b', book:'#5a5a3a',
+    best:'#4a8a4a', excellent:'#72a842', good:'#8db828',
+    inaccuracy:'#c4a018', mistake:'#c46818', miss:'#a83030', blunder:'#c0392b'
   };
 
-  const whiteMoves = results.filter(r => r.turn === 'w');
-  const blackMoves = results.filter(r => r.turn === 'b');
+  const wMoves = results.filter(r => r.turn === 'w');
+  const bMoves = results.filter(r => r.turn === 'b');
 
-  function makeRow(moves, label) {
-    const row = document.createElement('div');
-    row.className = 'tl-row';
+  function makePlayerRow(moves, label) {
+    const wrap = document.createElement('div');
+    wrap.className = 'tl2-player';
 
     const lbl = document.createElement('div');
-    lbl.className = 'tl-row-lbl';
+    lbl.className = 'tl2-plbl';
     lbl.textContent = label;
-    row.appendChild(lbl);
+    wrap.appendChild(lbl);
 
     const bar = document.createElement('div');
-    bar.className = 'tl-bar';
+    bar.className = 'tl2-bar';
 
     moves.forEach(r => {
       const idx = results.indexOf(r);
       const seg = document.createElement('div');
-      seg.className = 'tl-seg' + (idx + 1 === curMove ? ' tl-cur' : '');
+      seg.className = 'tl2-seg' + (idx + 1 === curMove ? ' cur' : '');
       seg.style.background = CLS_COL[r.cls] || '#4a8a4a';
-      seg.style.opacity = (CLS_OPACITY[r.cls] || 0.6).toString();
-      seg.style.flex = '1';
+      seg.style.opacity = ['blunder','miss','mistake','inaccuracy'].includes(r.cls) ? '1' : '0.65';
       seg.title = `${r.n}${r.turn==='b'?'…':'.'}${r.san} — ${(CFG[r.cls]||CFG.best).label}`;
       seg.onclick = () => gotoMove(idx + 1);
       bar.appendChild(seg);
     });
-
-    row.appendChild(bar);
-    return row;
+    wrap.appendChild(bar);
+    return wrap;
   }
 
-  // Phase markers row
-  const totalMoves = results.length;
-  const opEnd  = results.findIndex(r => r.phase !== 'opening');
-  const mgEnd  = results.findLastIndex ? results.findLastIndex(r => r.phase === 'middlegame') : -1;
-  
-  if (whiteMoves.length) track.appendChild(makeRow(whiteMoves, '♔'));
-  if (blackMoves.length) track.appendChild(makeRow(blackMoves, '♚'));
+  if (wMoves.length) track.appendChild(makePlayerRow(wMoves, '♔'));
+  if (bMoves.length) track.appendChild(makePlayerRow(bMoves, '♚'));
 
-  // Phase label row
-  const phRow = document.createElement('div');
-  phRow.className = 'tl-row';
-  phRow.style.marginTop = '2px';
-  const phPad = document.createElement('div');
-  phPad.style.width = '33px'; phPad.style.flexShrink = '0';
-  phRow.appendChild(phPad);
-  const phBar = document.createElement('div');
-  phBar.style.cssText = 'flex:1;display:flex;justify-content:space-between;padding:0 2px;';
-
-  const phases = ['Opening','Middlegame','Endgame'];
-  const phaseCounts = phases.map(p => results.filter(r => r.phase === p.toLowerCase()).length);
-  phases.forEach((p, i) => {
-    if (phaseCounts[i] === 0) return;
-    const span = document.createElement('span');
-    span.className = 'tl-phase-label';
-    span.textContent = p;
-    phBar.appendChild(span);
-  });
-  phRow.appendChild(phBar);
-  track.appendChild(phRow);
+  // Phase labels
+  const phases = ['opening','middlegame','endgame'];
+  const counts = phases.map(p => results.filter(r=>r.phase===p).length);
+  if (counts.some(c=>c>0)) {
+    const phDiv = document.createElement('div');
+    phDiv.className = 'tl2-phases';
+    phases.forEach((p,i) => {
+      if (counts[i]===0) return;
+      const sp = document.createElement('span');
+      sp.className = 'tl2-phase';
+      sp.style.flex = counts[i].toString();
+      sp.textContent = {opening:'Opening',middlegame:'Middlegame',endgame:'Endgame'}[p];
+      phDiv.appendChild(sp);
+    });
+    track.appendChild(phDiv);
+  }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2991,7 +2975,10 @@ function renderCriticalMoments() {
 
   list.innerHTML = top3.map(({ idx, r, swing }) => {
     const cfg = CFG[r.cls] || CFG.best;
-    const swingStr = (swing > 0 ? '+' : '') + (swing / 100).toFixed(1);
+    const absCap = Math.min(Math.abs(swing), 2000);
+    const swingStr = Math.abs(swing) >= 29000
+      ? (swing>0?'+':'−')+'M'
+      : (swing > 0 ? '+' : '') + (swing / 100).toFixed(1);
     const isPos = swing > 0;
     return `
       <div class="crit-item" onclick="gotoMove(${idx + 1})" title="Jump to move ${r.n}">
@@ -3440,6 +3427,67 @@ function loadSampleAndLaunch(key){
 
 // Init
 renderBoard(new Chess(),null,null,null,null);
+
+// ── Auto-load Stockfish on page open (background, silent) ──
+// Starts loading immediately so it's ready when user clicks Analyze
+setTimeout(() => {
+  if (!usingStockfish && !sfWorker && !sfLoading) {
+    // Silent load — don't show status message, just load quietly
+    const urls = [
+      'https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js',
+      'https://unpkg.com/stockfish.js@10.0.2/stockfish.js',
+    ];
+    (async () => {
+      for (const url of urls) {
+        try {
+          sfLoading = true;
+          const res = await fetch(url);
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const text = await res.text();
+          if (text.length < 100000) throw new Error('Too small');
+          const blob = new Blob([text], { type: 'application/javascript' });
+          sfWorker = new Worker(URL.createObjectURL(blob));
+          sfBusy = false; sfQueue.length = 0;
+          await new Promise((resolve, reject) => {
+            const t = setTimeout(() => reject(new Error('Timeout')), 25000);
+            const h = ev => {
+              const d = String(ev.data);
+              if (d.includes('uciok') || d.includes('readyok')) {
+                clearTimeout(t); sfWorker.removeEventListener('message', h); resolve();
+              }
+            };
+            sfWorker.addEventListener('message', h);
+            sfWorker.postMessage('uci');
+            sfWorker.postMessage('isready');
+          });
+          sfWorker.postMessage('setoption name Hash value 64');
+          sfWorker.postMessage('ucinewgame');
+          usingStockfish = true;
+          sfLoading = false;
+          analysisDepth = 14;
+          // Update UI to reflect SF is ready
+          setEng('sf', 'Stockfish ready');
+          setSt('⚡ Stockfish loaded — click Analyze for precision analysis.');
+          document.getElementById('sf-section').innerHTML = `
+            <div class="slbl">Advanced Engine</div>
+            <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:var(--r);padding:10px 12px;font-size:11px;color:#6ee7b7;">
+              ✓ Stockfish ready · ${Math.round(text.length/1024)} KB cached
+            </div>`;
+          document.querySelectorAll('.db').forEach(b => b.classList.remove('sel'));
+          document.querySelectorAll('.db')[1]?.classList.add('sel');
+          document.getElementById('depth-note').textContent = 'Stockfish ready · Standard depth 14';
+          if (mode === 'play') document.getElementById('rp-live').style.display = 'flex';
+          return; // success
+        } catch(e) {
+          sfLoading = false;
+          if (sfWorker) { try { sfWorker.terminate(); } catch(ex) {} sfWorker = null; }
+        }
+      }
+      // Failed silently — user can manually load via the SF button
+      sfLoading = false;
+    })();
+  }
+}, 1500); // Start loading 1.5s after page open (let other resources load first)
 
 </script>
 </body>
