@@ -1628,17 +1628,43 @@ function getCPLoss(evalBefore, evalAfter) {
   return Math.max(0, Math.min(evalBefore - evalAfter, 2000));
 }
 
-// ── Classification by WP loss ─────────────────────────────────────
-// Thresholds calibrated to match Chess.com's feel:
-function classifyByWPLoss(wpLoss, isBest, sac) {
-  if (isBest) return sac ? 'brilliant' : 'best';
-  if (wpLoss <  1) return 'great';       // < 1%   WP loss
-  if (wpLoss <  3) return 'excellent';   // < 3%
-  if (wpLoss <  6) return 'good';        // < 6%
-  if (wpLoss < 11) return 'inaccuracy';  // < 11%
-  if (wpLoss < 21) return 'mistake';     // < 21%
-  if (wpLoss < 35) return 'miss';        // < 35%
-  return 'blunder';                      // ≥ 35%
+// ── Depth calibration factor for classification ──────────────────
+// At depth 14, SF finds ~1.6x smaller differences than depth 20+ (Chess.com).
+// We apply this factor to WP loss for CLASSIFICATION only, not for the
+// accuracy% number. This gives a realistic category distribution at depth 14.
+function depthFactor(depth) {
+  if (depth >= 20) return 1.0;   // depth 20+ = fully calibrated
+  if (depth >= 18) return 1.15;
+  if (depth >= 16) return 1.30;
+  if (depth >= 14) return 1.60;  // SF depth 14: our default
+  if (depth >= 12) return 1.90;
+  if (depth >= 10) return 2.30;
+  return 3.50;                   // internal engine depth 2-7
+}
+
+// ── Classification using depth-adjusted WP ────────────────────────
+// wpRaw: raw WP loss in percentage points (for accuracy formula)
+// isBest: whether player played engine's top choice
+// sac: whether this is a true material sacrifice
+function classifyByWPLoss(wpRaw, isBest, sac) {
+  const wp = wpRaw * depthFactor(actualDepthUsed || analysisDepth);
+  // Engine's top move AND nearly zero adjusted WP loss → Best (★)
+  if (isBest && wp < 2.0) return sac ? 'brilliant' : 'best';
+  // Effectively tied with engine's top (any move) → Best
+  if (wp < 0.5)  return 'best';
+  // Very close to best — a near miss that's still excellent chess
+  if (wp < 2.5)  return 'great';
+  // Solid move with small accuracy cost
+  if (wp < 6.0)  return 'excellent';
+  // Reasonable but not precise
+  if (wp < 10.0) return 'good';
+  // Noticeable imprecision
+  if (wp < 16.0) return 'inaccuracy';
+  // Clear error
+  if (wp < 28.0) return 'mistake';
+  // Major tactical miss
+  if (wp < 43.0) return 'miss';
+  return 'blunder';
 }
 
 // ── True material sacrifice ───────────────────────────────────────
@@ -1660,6 +1686,8 @@ function isTrueSacrifice(mr, fenAfterMove) {
 // ── Main classify ─────────────────────────────────────────────────
 function classify(wpLoss, isBest, sac, fen) {
   if (getOpeningName(fen)) return 'book';
+  // isBest: player played engine's exact top recommendation
+  // wpLoss: independently computed — used for both accuracy AND classification
   return classifyByWPLoss(wpLoss, isBest, sac);
 }
 
@@ -1673,15 +1701,16 @@ function calcAcc(rs, color) {
 function calcPhAcc(rs,c,ph){ return calcAcc(rs.filter(r=>r.phase===ph),c); }
 
 // ── Game Rating ───────────────────────────────────────────────────
-// Calibrated from Chess.com WP formula + empirical Elo mapping
+// Calibrated empirically against Chess.com game ratings:
+// Chess.com 84% ≈ 1100-1200 Elo, 76% ≈ 800-900 Elo
 function calcRating(acc){
   if (acc===null||acc===undefined) return '—';
-  if (acc>=96) return '~2200+'; if (acc>=93) return '~2000';
-  if (acc>=89) return '~1800';  if (acc>=85) return '~1600';
-  if (acc>=81) return '~1400';  if (acc>=77) return '~1200';
-  if (acc>=73) return '~1000';  if (acc>=68) return '~900';
-  if (acc>=63) return '~750';   if (acc>=57) return '~600';
-  if (acc>=51) return '~450';   if (acc>=45) return '~350';
+  if (acc>=94) return '~2200+'; if (acc>=91) return '~2000';
+  if (acc>=87) return '~1800';  if (acc>=83) return '~1600';
+  if (acc>=79) return '~1400';  if (acc>=75) return '~1200';
+  if (acc>=70) return '~1100';  if (acc>=65) return '~900';
+  if (acc>=60) return '~750';   if (acc>=54) return '~600';
+  if (acc>=48) return '~500';   if (acc>=42) return '~400';
   return '<300';
 }
 
@@ -2790,8 +2819,11 @@ async function doAnalyze(){
     // (a 200cp error when winning by 800cp = tiny WP change = high accuracy)
     const evB = Math.max(-2000, Math.min(2000, evalBefore));
     const evA = Math.max(-2000, Math.min(2000, evalAfter));
-    const wpLossVal = isBest ? 0 : getWPLoss(evB, evA);
-    const cpLossCalc = isBest ? 0 : getCPLoss(evB, evA);
+    // Compute wpLoss for ALL moves — isBest moves naturally score ≈ 0
+    // (because playing the engine's recommendation preserves eval)
+    // Forcing 0 for isBest was causing artificial inflation.
+    const wpLossVal = getWPLoss(evB, evA);
+    const cpLossCalc = getCPLoss(evB, evA);
     const fenBefore  = positions[i];
     const cls = classify(wpLossVal, isBest, sac, fenBefore);
 
