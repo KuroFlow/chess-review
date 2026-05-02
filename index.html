@@ -910,13 +910,13 @@ button{font-family:var(--fu);cursor:pointer;}
       <button class="sbtn-main" onclick="doAnalyze()">▶ Analyze with Stockfish</button>
     </div>
     <div class="ss">
-      <div class="slbl">Stockfish Depth</div>
+      <div class="slbl">Analysis Depth</div>
       <div class="depth-grid" id="sf-depth-row">
         <button class="db" onclick="setDepth(10,this)">Fast<small>~1s/move</small></button>
         <button class="db sel" onclick="setDepth(14,this)">Standard<small>~5s/move</small></button>
         <button class="db" onclick="setDepth(18,this)">Deep<small>~25s/move</small></button>
       </div>
-      <div class="depth-note" id="depth-note">Stockfish · Standard · ~5s/move</div>
+      <div class="depth-note" id="depth-note">Load Stockfish below for full precision</div>
     </div>
     <div class="ss">
       <div class="slbl">Classic Games</div>
@@ -1524,7 +1524,7 @@ function findBest(fen, depth) {
         const moves = ch.moves({ verbose: true });
         if (!moves.length) { resolve({score:0, move:null, uci:null}); return; }
         // Cap depth to avoid UI freeze
-        const d = Math.min(depth, 4);
+        const d = Math.min(depth, 2); // hard cap for UI responsiveness
         const color = ch.turn() === 'w' ? 1 : -1;
         let bestMove = null, bestScore = -Infinity;
         // Move ordering for root
@@ -1832,6 +1832,7 @@ let sfBusy=false;
 const sfQueue=[];
 
 async function loadStockfish(){
+  sfLoading=true;
   const btn=document.getElementById('sf-btn');
   if(btn){btn.disabled=true;btn.textContent='⏳ Descargando…';}
   setEng('busy','Loading Stockfish…');
@@ -1882,9 +1883,10 @@ async function loadStockfish(){
       document.querySelectorAll('.db').forEach(b=>b.classList.remove('sel'));
       document.querySelectorAll('.db')[1].classList.add('sel');
       analysisDepth=14;
-      document.getElementById('depth-note').textContent='Stockfish · ~3-8s/move';
+      document.getElementById('depth-note').textContent='Stockfish ready · Standard depth 14';
       setEng('sf','Stockfish active');
       setSt('✓ Stockfish loaded. Re-analyze for maximum precision.');
+      sfLoading=false;
       if(mode==='play') document.getElementById('rp-live').style.display='flex';
       return;
     }catch(e){
@@ -1896,6 +1898,7 @@ async function loadStockfish(){
   if(btn){btn.disabled=false;btn.textContent='Retry';}
   setEng('ok','Internal engine');
   setSt('Could not load Stockfish. Check your internet connection.');
+  sfLoading=false;
 }
 
 function sfRunNext(){
@@ -2044,7 +2047,7 @@ function setBotLevel(d, btn){
   document.querySelectorAll('#play-info .depth-grid-6 .db').forEach(b=>b.classList.remove('sel'));
   btn.classList.add('sel');
   const names={1:'Novato',3:'Fácil',6:'Normal',10:'Difícil',14:'Experto',18:'Maestro'};
-  document.getElementById('bot-note').textContent=(names[d]||'Custom')+' · depth '+d+(usingStockfish?'':' (carga Stockfish primero)');
+  document.getElementById('bot-note').textContent=(names[d]||'Custom')+' · depth '+d+(usingStockfish?'':' (load Stockfish first)');
 }
 
 function setBotStatus(t){ const el=document.getElementById('bot-status'); if(el) el.textContent=t; }
@@ -2189,7 +2192,7 @@ async function evalExplorePos(fen, moveSan, evalBefore) {
       score = r ? r.score : null;
       bestUci = r ? r.uci : null;
     } else {
-      const r = await findBest(fen, Math.min(analysisDepth, 4));
+      const r = await findBest(fen, 2);
       score = r.score;
       bestUci = r.uci || null;
     }
@@ -2235,7 +2238,7 @@ function undoExploreMove() {
     document.getElementById('explore-eval-change').className = 'explore-eval-change';
     const anchorR = exploreAnchorMove > 0 ? results[exploreAnchorMove-1] : null;
     if (anchorR) showDetail(anchorR);
-    else document.getElementById('det-c').innerHTML = '<div style="color:var(--t3);font-size:11px;">Posición de inicio. Haz una jugada para explorar.</div>';
+    else document.getElementById('det-c').innerHTML = '<div style="color:var(--t3);font-size:11px;">Starting position — make a move to explore variations.</div>';
   } else {
     const prev = exploreHistory[exploreHistory.length-1];
     const prevEval = prev.whiteEval !== undefined ? prev.whiteEval : exploreAnchorEval;
@@ -2637,6 +2640,15 @@ function setEval(score) {
 //  ANALYSIS
 // ═══════════════════════════════════════════════════════
 async function doAnalyze(){
+  // Auto-load Stockfish in background if not yet loaded
+  if (!usingStockfish && !sfWorker && !sfLoading) {
+    setSt('⚡ Loading Stockfish for precise analysis…');
+    loadStockfish().then(() => {
+      if (results.length > 0) {
+        setSt('✓ Stockfish ready — click Analyze again for full precision.');
+      }
+    }).catch(()=>{});
+  }
   if(typeof Chess==='undefined'){setSt('Error: chess.js failed to load.');return;}
   if(mode!=='analyze')setMode('analyze');
   const pgn=document.getElementById('pgn-in').value.trim();
@@ -2666,13 +2678,14 @@ async function doAnalyze(){
   const bestUCIs=new Array(N+1).fill(null); // raw UCI → easy from/to extraction
   const t0=Date.now();
 
-  let actualDepthUsed = usingStockfish ? analysisDepth : Math.min(analysisDepth,4);
+  let actualDepthUsed = usingStockfish ? analysisDepth : 2;
   for(let i=0;i<=N;i++){
     if(cancelled)break;
-    const lbl=i===0?'Inicio':`${Math.ceil(i/2)}${i%2!==0?'...':'.'}${moveResults[i-1]?.san||''}`;
+    await new Promise(r=>setTimeout(r,0)); // yield UI — keeps progress bar live
+    const lbl=i===0?'Start':`${Math.ceil(i/2)}${i%2!==0?'\u2026':'.'}${moveResults[i-1]?.san||''}`;
     const el=Math.round((Date.now()-t0)/1000);
-    const eta=i>0?Math.round(el/i*(N+1-i)):'…';
-    showProg(i,N+1,lbl+(i>0?' · '+el+'s · ETA ~'+eta+'s':''));
+    const eta=i>0?Math.round(el/i*(N+1-i)):'\u2026';
+    showProg(i,N+1,lbl+(i>0?' \u00b7 '+el+'s \u00b7 ETA ~'+eta+'s':''));
 
     try{
       const posCh = new Chess(positions[i]);
@@ -2689,7 +2702,7 @@ async function doAnalyze(){
         bestSans[i]=r.uci?uciToSan(positions[i],r.uci):null;
         actualDepthUsed=analysisDepth;
       }else{
-        const intDepth=Math.min(analysisDepth,4);
+        const intDepth=2; // depth 2 keeps analysis under 1s for 40-move game
         const r=await findBest(positions[i],intDepth);
         scores[i]=r.score;
         bestSans[i]=r.move||null;
@@ -2787,7 +2800,7 @@ async function doAnalyze(){
     setSt('⚠ Error updating panel: '+err.message);
   }
   const elapsed=Math.round((Date.now()-t0)/1000);
-  setSt(`✓ ${N} moves · ${usingStockfish?'Stockfish':'Internal engine'} depth ${analysisDepth} · ${elapsed}s`);
+  setSt(`✓ Done — ${N} moves · ${usingStockfish?'Stockfish':'Internal engine'} depth ${analysisDepth} · ${elapsed}s`);
   gotoMove(results.length);
 }
 
@@ -3402,7 +3415,8 @@ function launchWithPGN(){
   const pgn=(document.getElementById('land-pgn')||{}).value||'';
   if(pgn.trim()) document.getElementById('pgn-in').value=pgn.trim();
   hideLanding();
-  if(pgn.trim()) setTimeout(()=>doAnalyze(),580);
+  if(pgn.trim()) setTimeout(()=>doAnalyze(),600);
+  else setTimeout(()=>setSt('Paste a PGN in the text area above, then click ▶ Analyze.'),600);
 }
 function loadSampleAndLaunch(key){
   hideLanding();
