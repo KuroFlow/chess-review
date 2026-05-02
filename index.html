@@ -1385,7 +1385,7 @@ let exploreHistory=[];     // [{san,from,to,fen,whiteEval}]
 let exploreAnchorMove=0;   // curMove when explore started
 let exploreAnchorEval=0;   // white eval at anchor
 let currentTheme='classic', currentPieceSet='cburnett', currentSqSize=68;
-let sfWorker=null, usingStockfish=false;
+let sfWorker=null, usingStockfish=false, sfLoading=false;
 // Bot play
 let botLevel=6, playerColor='w', botThinking=false;
 
@@ -1834,7 +1834,7 @@ const sfQueue=[];
 async function loadStockfish(){
   sfLoading=true;
   const btn=document.getElementById('sf-btn');
-  if(btn){btn.disabled=true;btn.textContent='⏳ Descargando…';}
+  if(btn){btn.disabled=true;btn.textContent='⏳ Downloading…';}
   setEng('busy','Loading Stockfish…');
 
   const urls=[
@@ -1850,7 +1850,7 @@ async function loadStockfish(){
       const res=await fetch(url);
       if(!res.ok) throw new Error('HTTP '+res.status);
       const text=await res.text();
-      if(text.length<100000) throw new Error('Archivo muy pequeño ('+text.length+' bytes)');
+      if(text.length<100000) throw new Error('File too small ('+text.length+' bytes)');
 
       const blob=new Blob([text],{type:'application/javascript'});
       sfWorker=new Worker(URL.createObjectURL(blob));
@@ -1874,9 +1874,9 @@ async function loadStockfish(){
       document.getElementById('sf-section').innerHTML=`
         <div class="slbl">Advanced Engine</div>
         <div style="background:rgba(20,15,60,.5);border:1px solid rgba(139,92,246,.25);border-radius:var(--r);padding:10px 12px;font-size:11px;color:#c4b5fd;">
-          ⚡ Stockfish listo · ${Math.round(text.length/1024)} KB
+          ⚡ Stockfish ready · ${Math.round(text.length/1024)} KB
         </div>`;
-      ['Rápido|10','Estándar|14','Profundo|18'].forEach((s,i)=>{
+      ['Fast|10','Standard|14','Deep|18'].forEach((s,i)=>{
         const [nm,d]=s.split('|');
         document.querySelectorAll('.db')[i].innerHTML=`${nm}<small>depth ${d}</small>`;
       });
@@ -2640,22 +2640,36 @@ function setEval(score) {
 //  ANALYSIS
 // ═══════════════════════════════════════════════════════
 async function doAnalyze(){
-  // Auto-load Stockfish in background if not yet loaded
-  if (!usingStockfish && !sfWorker && !sfLoading) {
-    setSt('⚡ Loading Stockfish for precise analysis…');
-    loadStockfish().then(() => {
-      if (results.length > 0) {
-        setSt('✓ Stockfish ready — click Analyze again for full precision.');
-      }
-    }).catch(()=>{});
-  }
   if(typeof Chess==='undefined'){setSt('Error: chess.js failed to load.');return;}
   if(mode!=='analyze')setMode('analyze');
   const pgn=document.getElementById('pgn-in').value.trim();
-  if(!pgn){setSt('Please enter a PGN.');return;}
+  if(!pgn){setSt('Please paste a PGN above first.');return;}
+  // ── PGN Preprocessing ───────────────────────────────────────────
+  // Strip annotations that chess.js 0.10.3 can't handle:
+  //   {[%clk 0:09:58]}  — Chess.com clock
+  //   {[%eval 0.35]}    — Chess.com evaluation
+  //   {[%emt 0:00:01]}  — elapsed move time
+  //   { any comment }   — inline text comments  
+  //   (variations)      — parenthesised variations
+  //   $1 $2 etc         — NAG annotation codes
+  let cleanPgn = pgn
+    .replace(/\r\n/g, '\n')
+    .replace(/\{[^}]*\}/g, '')      // remove ALL curly-brace comments
+    .replace(/\([^)]*\)/g, '')      // remove parenthesised variations
+    .replace(/\$\d+/g, '')          // remove NAG codes ($1, $2…)
+    .replace(/[ \t]+/g, ' ')         // collapse multiple spaces
+    .replace(/\n{3,}/g, '\n\n')    // collapse triple+ newlines
+    .trim();
+
   const tmp=new Chess();
-  if(!tmp.load_pgn(pgn)){setSt('Invalid PGN format.');return;}
-  const moves=tmp.history();if(!moves.length){setSt('No moves found.');return;}
+  const loaded = tmp.load_pgn(cleanPgn) || tmp.load_pgn(pgn);
+  if(!loaded){
+    // Last resort: try stripping headers too and loading just moves
+    const movesOnly = cleanPgn.replace(/\[.*?\]/g,'').trim();
+    const loaded2 = movesOnly && tmp.load_pgn(movesOnly);
+    if(!loaded2){ setSt('❌ Could not parse PGN. Export from Chess.com as PGN and paste here.'); return; }
+  }
+  const moves=tmp.history();if(!moves.length){setSt('No moves found in PGN.');return;}
   cancelled=false;
   document.getElementById('btn-cancel').style.display='';document.getElementById('btn-analyze').style.display='none';
   setEng('busy','Analyzing…');
@@ -2800,7 +2814,8 @@ async function doAnalyze(){
     setSt('⚠ Error updating panel: '+err.message);
   }
   const elapsed=Math.round((Date.now()-t0)/1000);
-  setSt(`✓ Done — ${N} moves · ${usingStockfish?'Stockfish':'Internal engine'} depth ${analysisDepth} · ${elapsed}s`);
+  if(!usingStockfish) setSt(`✓ Done (internal engine) — load Stockfish below for precise accuracy`);
+  else setSt(`✓ Done — ${N} moves · ${usingStockfish?'Stockfish':'Internal engine'} depth ${analysisDepth} · ${elapsed}s`);
   gotoMove(results.length);
 }
 
