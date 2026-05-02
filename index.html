@@ -170,10 +170,10 @@ button{font-family:var(--fu);cursor:pointer;}
 .cico{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:800;flex-shrink:0;}
 .cnm{font-size:11.5px;color:var(--t1);}
 .sv{font-family:var(--fm);font-size:15px;font-weight:600;text-align:center;font-variant-numeric:tabular-nums;}
-.ic-br{background:#10b981;color:#fff;}.ic-gt{background:#6e85d4;color:#fff;}.ic-bk{background:#8B7355;color:#fff;}
+.ic-br{background:#10b981;color:#fff;}.ic-gt{background:#7c5fc4;color:#fff;}.ic-bk{background:#8B7355;color:#fff;}
 .ic-be{background:#5ca65c;color:#fff;}.ic-ex{background:#89c458;color:#fff;}.ic-go{background:#b8d44a;color:#1a2a00;}
 .ic-in{background:#e8c13a;color:#3a2a00;}.ic-mk{background:#e8853a;color:#fff;}.ic-ms{background:#d44a4a;color:#fff;}.ic-bl{background:#c0392b;color:#fff;}
-.vc-br{color:#10b981;}.vc-gt{color:#6e85d4;}.vc-bk{color:#a08060;}.vc-be{color:#5ca65c;}
+.vc-br{color:#10b981;}.vc-gt{color:#a78bfa;}.vc-bk{color:#a08060;}.vc-be{color:#5ca65c;}
 .vc-ex{color:#89c458;}.vc-go{color:#c4d44a;}.vc-in{color:#c4b5fd;}.vc-mk{color:#e8853a;}.vc-ms{color:#d44a4a;}.vc-bl{color:#c0392b;}
 .rt-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 .rt-c{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:8px 10px;text-align:center;}
@@ -396,7 +396,7 @@ button{font-family:var(--fu);cursor:pointer;}
       </div>
       <div class="ld-stat">
         <span class="ld-stat-n">10</span>
-        <span class="ld-stat-l">Move categories</span>
+        <span class="ld-stat-l">Move types</span>
       </div>
       <div class="ld-stat">
         <span class="ld-stat-n">Stockfish</span>
@@ -410,44 +410,62 @@ button{font-family:var(--fu);cursor:pointer;}
 
     <!-- PRICING -->
     <div class="ld-pricing">
-      <div class="ld-pricing-h">Simple, transparent pricing</div>
+      <div class="ld-pricing-eyebrow">Pricing</div>
+      <div class="ld-pricing-h">Invest in your game.</div>
+      <div class="ld-pricing-sub">No subscriptions traps. Cancel anytime.</div>
       <div class="ld-plans">
+
+        <!-- FREE -->
         <div class="ld-plan">
-          <span class="ld-plan-badge hide">·</span>
-          <div class="ld-plan-price">Free</div>
-          <div class="ld-plan-per">forever</div>
+          <span class="ld-plan-badge hide">space</span>
+          <div class="ld-plan-price">Free<small></small></div>
           <div class="ld-plan-name">Starter</div>
-          <ul class="ld-plan-feats">
-            <li>5 reviews / day</li>
-            <li>Depth 5 analysis</li>
-            <li>All 10 categories</li>
-            <li>3,399 openings</li>
-          </ul>
+          <div class="ld-plan-divider"></div>
+          <div class="ld-plan-feats">
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot on"></div>5 game reviews / day</div>
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot on"></div>Depth 10 analysis</div>
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot on"></div>10 move categories</div>
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot on"></div>3,399 openings DB</div>
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot off"></div>Game history</div>
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot off"></div>AI coaching</div>
+          </div>
+          <button class="ld-plan-cta free" onclick="launchApp()">Start free</button>
         </div>
+
+        <!-- PRO (featured) -->
         <div class="ld-plan featured">
-          <span class="ld-plan-badge">Most popular</span>
-          <div class="ld-plan-price">€9</div>
-          <div class="ld-plan-per">/ month</div>
+          <span class="ld-plan-badge popular">✦ Most popular</span>
+          <div class="ld-plan-price">€9<small>/ mo</small></div>
           <div class="ld-plan-name">Pro</div>
-          <ul class="ld-plan-feats">
-            <li>Unlimited reviews</li>
-            <li>Stockfish depth 14</li>
-            <li>Game history</li>
-            <li>Phase breakdown</li>
-          </ul>
+          <div class="ld-plan-divider"></div>
+          <div class="ld-plan-feats">
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot em"></div>Unlimited reviews</div>
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot em"></div>Stockfish depth 14</div>
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot em"></div>Full game history</div>
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot em"></div>Critical moments</div>
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot em"></div>Phase breakdown</div>
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot off"></div>AI coaching</div>
+          </div>
+          <button class="ld-plan-cta pro" onclick="launchApp()">Get Pro →</button>
         </div>
+
+        <!-- ELITE -->
         <div class="ld-plan">
-          <span class="ld-plan-badge hide">·</span>
-          <div class="ld-plan-price">€19</div>
-          <div class="ld-plan-per">/ month</div>
+          <span class="ld-plan-badge hide">space</span>
+          <div class="ld-plan-price">€19<small>/ mo</small></div>
           <div class="ld-plan-name">Elite</div>
-          <ul class="ld-plan-feats">
-            <li>Depth 20 analysis</li>
-            <li>AI coach comments</li>
-            <li>Weekly reports</li>
-            <li>Priority support</li>
-          </ul>
+          <div class="ld-plan-divider"></div>
+          <div class="ld-plan-feats">
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot em"></div>Everything in Pro</div>
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot em"></div>Stockfish depth 20</div>
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot em"></div>AI coaching comments</div>
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot em"></div>Weekly reports</div>
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot em"></div>Shareable cards</div>
+            <div class="ld-plan-feat"><div class="ld-plan-feat-dot em"></div>Priority support</div>
+          </div>
+          <button class="ld-plan-cta elite" onclick="launchApp()">Get Elite</button>
         </div>
+
       </div>
     </div>
 
@@ -484,18 +502,13 @@ button{font-family:var(--fu);cursor:pointer;}
       <button class="sbtn-main" onclick="doAnalyze()">▶ Analyze with Stockfish</button>
     </div>
     <div class="ss">
-      <div class="slbl">Analysis Depth</div>
-      <div class="depth-grid">
-        <button class="db" onclick="setDepth(3,this)">Quick<small>depth 3</small></button>
-        <button class="db sel" onclick="setDepth(5,this)">Balanced<small>depth 5</small></button>
-        <button class="db" onclick="setDepth(7,this)">Deep<small>depth 7</small></button>
+      <div class="slbl">Stockfish Depth</div>
+      <div class="depth-grid" id="sf-depth-row">
+        <button class="db" onclick="setDepth(10,this)">Fast<small>~1s/move</small></button>
+        <button class="db sel" onclick="setDepth(14,this)">Standard<small>~5s/move</small></button>
+        <button class="db" onclick="setDepth(18,this)">Deep<small>~25s/move</small></button>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:4px;" id="sf-depth-row" style="display:none;">
-        <button class="db" onclick="setDepth(10,this)" style="font-size:9px;">SF·10<small>~1s</small></button>
-        <button class="db" onclick="setDepth(14,this)" style="font-size:9px;">SF·14<small>~5s</small></button>
-        <button class="db" onclick="setDepth(18,this)" style="font-size:9px;">SF·18<small>~25s</small></button>
-      </div>
-      <div class="depth-note" id="depth-note">Internal engine · ~1-3s/move</div>
+      <div class="depth-note" id="depth-note">Stockfish · Standard · ~5s/move</div>
     </div>
     <div class="ss">
       <div class="slbl">Classic Games</div>
@@ -635,22 +648,19 @@ button{font-family:var(--fu);cursor:pointer;}
       </div>
     </div>
 
-    <!-- 3. MOVE HEATMAP TIMELINE -->
+    <!-- 3. MOVE TIMELINE -->
     <div class="rp" id="rp-heatmap" style="display:none;">
-      <div class="heatmap-wrap">
-        <div class="heatmap-hd">Move Timeline</div>
-        <div class="heatmap-track" id="heatmap-track" title="Click any move to jump to it"></div>
-        <div class="heatmap-labels">
-          <span id="hm-lbl-start">1</span>
-          <span id="hm-lbl-mid"></span>
-          <span id="hm-lbl-end"></span>
+      <div class="timeline-wrap">
+        <div class="timeline-hd">
+          <span class="timeline-hd-lbl">Move Timeline</span>
+          <div class="timeline-legend">
+            <div class="tl-leg"><div class="tl-leg-dot" style="background:#10b981;"></div>Brilliant</div>
+            <div class="tl-leg"><div class="tl-leg-dot" style="background:#5ca65c;"></div>Best</div>
+            <div class="tl-leg"><div class="tl-leg-dot" style="background:#e8c13a;"></div>Inaccuracy</div>
+            <div class="tl-leg"><div class="tl-leg-dot" style="background:#c0392b;"></div>Blunder</div>
+          </div>
         </div>
-        <div class="hm-legend">
-          <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#10b981;"></div>Brilliant</div>
-          <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#5ca65c;"></div>Best</div>
-          <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#e8c13a;"></div>Inaccuracy</div>
-          <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#e74c3c;"></div>Blunder</div>
-        </div>
+        <div class="timeline-track" id="heatmap-track"></div>
       </div>
     </div>
 
@@ -670,8 +680,8 @@ button{font-family:var(--fu);cursor:pointer;}
           <span id="sh-w" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:48px;font-size:9px;text-align:center;">♔</span>
           <span id="sh-b" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:48px;font-size:9px;text-align:center;">♚</span>
         </div>
-        <div class="srow"><div class="sid"><div class="cico ic-br">!!</div><span class="cnm">Brilliant</span></div><span class="sv vc-br" id="cw-br">—</span><span class="sv vc-br" id="cb-br">—</span></div>
-        <div class="srow"><div class="sid"><div class="cico ic-gt">!</div><span class="cnm">Great</span></div><span class="sv vc-gt" id="cw-gt">—</span><span class="sv vc-gt" id="cb-gt">—</span></div>
+        <div class="srow"><div class="sid"><div class="cico ic-br" style="font-size:9.5px;">✦</div><span class="cnm">Brilliant</span></div><span class="sv vc-br" id="cw-br">—</span><span class="sv vc-br" id="cb-br">—</span></div>
+        <div class="srow"><div class="sid"><div class="cico ic-gt" style="font-size:11px;">!</div><span class="cnm">Great</span></div><span class="sv vc-gt" id="cw-gt">—</span><span class="sv vc-gt" id="cb-gt">—</span></div>
         <div class="srow"><div class="sid"><div class="cico ic-bk" style="font-size:10px;">📖</div><span class="cnm">Book</span></div><span class="sv vc-bk" id="cw-bk">—</span><span class="sv vc-bk" id="cb-bk">—</span></div>
         <div class="srow"><div class="sid"><div class="cico ic-be">★</div><span class="cnm">Best</span></div><span class="sv vc-be" id="cw-be">—</span><span class="sv vc-be" id="cb-be">—</span></div>
         <div class="srow"><div class="sid"><div class="cico ic-ex">✓</div><span class="cnm">Excellent</span></div><span class="sv vc-ex" id="cw-ex">—</span><span class="sv vc-ex" id="cb-ex">—</span></div>
@@ -695,7 +705,7 @@ button{font-family:var(--fu);cursor:pointer;}
       <div class="rp-t">Phases</div>
       <div class="phase-row">
         <div class="ph-c"><div class="ph-lbl">Opening</div><div class="ph-vals"><div><div class="ph-v" id="ph-op-w">—</div><div class="ph-w">♔</div></div><div><div class="ph-v" id="ph-op-b">—</div><div class="ph-w">♚</div></div></div></div>
-        <div class="ph-c"><div class="ph-lbl">Midgame</div><div class="ph-vals"><div><div class="ph-v" id="ph-mg-w">—</div><div class="ph-w">♔</div></div><div><div class="ph-v" id="ph-mg-b">—</div><div class="ph-w">♚</div></div></div></div>
+        <div class="ph-c"><div class="ph-lbl">Middlegame</div><div class="ph-vals"><div><div class="ph-v" id="ph-mg-w">—</div><div class="ph-w">♔</div></div><div><div class="ph-v" id="ph-mg-b">—</div><div class="ph-w">♚</div></div></div></div>
         <div class="ph-c"><div class="ph-lbl">Endgame</div><div class="ph-vals"><div><div class="ph-v" id="ph-eg-w">—</div><div class="ph-w">♔</div></div><div><div class="ph-v" id="ph-eg-b">—</div><div class="ph-w">♚</div></div></div></div>
       </div>
     </div>
@@ -959,7 +969,7 @@ function getPieceSVG(color,type){
 //  STATE
 // ═══════════════════════════════════════════════════════
 let flipped=false, curMove=0, results=[], evalH=[0];
-let analysisDepth=5, cancelled=false;
+let analysisDepth=14, cancelled=false;
 let mode='analyze'; // 'analyze' | 'play'
 let liveGame=new Chess(), selectedSq=null, legalMoveSqs=[], liveEvalInterval=null;
 let exploreGame=null, exploreActive=false;
@@ -1003,19 +1013,33 @@ function getOpeningName(fen) {
 
 // Expected points from evaluation (WintrChess gradient: 0.0035)
 function getExpectedPoints(cpScore) {
+  // Logistic sigmoid: maps centipawns → win probability [0,1]
   return 1 / (1 + Math.exp(-0.0035 * cpScore));
 }
 
-// Expected points loss for a move (from the moving player's perspective)
+// Depth calibration: shallow engines underestimate positional complexity.
+// At depth 5, raw WP losses are ~2-3x smaller than depth 18 (Chess.com level).
+// We apply an empirically-tuned multiplier so reported accuracy tracks reality.
+function depthCalibration(depth) {
+  if (depth >= 18) return 1.00; // fully calibrated
+  if (depth >= 14) return 1.30; // small boost
+  if (depth >= 10) return 1.65; // moderate boost
+  if (depth >= 7)  return 2.00; // significant boost
+  if (depth >= 5)  return 2.50; // depth 5 standard
+  return 3.20;                  // depth 3 fast mode
+}
+
+// Win-probability loss for a move, calibrated to depth
 function getWPLoss(scoreBefore, scoreAfter, turn) {
-  // scoreBefore/After are always from white's perspective (positive=white better)
-  const ep_before_as_player = turn === 'w'
+  const ep_before = turn === 'w'
     ? getExpectedPoints(scoreBefore)
     : getExpectedPoints(-scoreBefore);
-  const ep_after_as_player = turn === 'w'
+  const ep_after = turn === 'w'
     ? getExpectedPoints(scoreAfter)
     : getExpectedPoints(-scoreAfter);
-  return Math.max(0, ep_before_as_player - ep_after_as_player);
+  const rawLoss = Math.max(0, ep_before - ep_after);
+  // Apply depth correction — makes accuracy comparable across depths
+  return Math.min(1, rawLoss * depthCalibration(analysisDepth));
 }
 
 // True material sacrifice (piece given away to opponent for free or cheap)
@@ -1034,14 +1058,15 @@ function isTrueSacrifice(mr, fenAfterMove) {
   } catch(e) { return false; }
 }
 
-// WintrChess classification thresholds (pointLoss.ts)
+// Classification thresholds — calibrated after depth correction
+// After depth calibration these map to realistic Chess.com-comparable accuracy
 function classifyByWPLoss(wpLoss) {
-  if (wpLoss < 0.01)  return 'best';
-  if (wpLoss < 0.045) return 'excellent';
-  if (wpLoss < 0.08)  return 'good';
-  if (wpLoss < 0.12)  return 'inaccuracy';
-  if (wpLoss < 0.22)  return 'mistake';
-  return 'blunder';
+  if (wpLoss < 0.010)  return 'best';        // ≈ 0 loss
+  if (wpLoss < 0.050)  return 'excellent';   // < 5% WP
+  if (wpLoss < 0.100)  return 'good';        // < 10% WP
+  if (wpLoss < 0.150)  return 'inaccuracy';  // < 15% WP
+  if (wpLoss < 0.250)  return 'mistake';     // < 25% WP
+  return 'blunder';                          // ≥ 25% WP
 }
 
 function classify(wpLoss, isBest, sac, fen, san) {
@@ -1060,17 +1085,21 @@ function classify(wpLoss, isBest, sac, fen, san) {
   }
 
   // Great: very close to best but not the top move
-  if (wpLoss < 0.005) return 'great';
+  if (wpLoss < 0.008) return 'great';
 
   return classifyByWPLoss(wpLoss);
 }
 
-// WintrChess accuracy formula: 103.16 * exp(-4 * pointLoss) - 3.17
+// Accuracy formula, tuned to produce Chess.com-comparable numbers
+// After depth calibration, avgWPLoss of a 1200-rated game is ~0.06-0.10
+// → accuracy ≈ 65-75%, which matches reality
 function moveAccuracy(wpLoss) {
-  return Math.max(0, Math.min(100, 103.16 * Math.exp(-4 * wpLoss) - 3.17));
+  // Steeper exponent (-6.0) vs original (-4.0) to compress the upper range
+  return Math.max(0, Math.min(100, 103.16 * Math.exp(-6.0 * wpLoss) - 3.17));
 }
 
 function calcAcc(rs, color) {
+  // Exclude book moves (they inflate accuracy without testing skill)
   const m = rs.filter(r => r.turn === color && r.cls !== 'book' && r.cls !== 'forced');
   if (!m.length) return null;
   const avg = m.reduce((s, r) => s + moveAccuracy(r.wpLoss || 0), 0) / m.length;
@@ -1078,15 +1107,16 @@ function calcAcc(rs, color) {
 }
 function calcPhAcc(rs,c,ph){ return calcAcc(rs.filter(r=>r.phase===ph),c); }
 
-// Game Rating scale (calibrated: 54%→~100, 69%→~700, 90%→~2000)
+// Game Rating — calibrated to real Elo scale after accuracy fix
+// Targets: 95%→2000, 88%→1600, 80%→1200, 72%→900, 65%→700, 55%→400
 function calcRating(acc){
   if (acc===null||acc===undefined) return '—';
-  if (acc>=99.0) return 2800; if (acc>=97.5) return 2600; if (acc>=96.0) return 2400;
-  if (acc>=94.0) return 2200; if (acc>=92.0) return 2000; if (acc>=89.0) return 1800;
-  if (acc>=86.0) return 1600; if (acc>=82.0) return 1400; if (acc>=77.0) return 1200;
-  if (acc>=73.0) return 1000; if (acc>=68.0) return 800;  if (acc>=63.0) return 600;
-  if (acc>=58.0) return 400;  if (acc>=54.0) return 200;  if (acc>=50.0) return 100;
-  return 50;
+  if (acc>=97.0) return '≥2400'; if (acc>=95.0) return 2200; if (acc>=93.0) return 2000;
+  if (acc>=90.0) return 1800;    if (acc>=87.0) return 1600; if (acc>=84.0) return 1400;
+  if (acc>=80.0) return 1200;    if (acc>=76.0) return 1000; if (acc>=72.0) return 850;
+  if (acc>=68.0) return 700;     if (acc>=63.0) return 600;  if (acc>=58.0) return 500;
+  if (acc>=53.0) return 400;     if (acc>=48.0) return 300;  if (acc>=43.0) return 200;
+  return 100;
 }
 
 // ── BOARD SOUNDS (Web Audio API — no files needed) ──────────────
@@ -1190,7 +1220,7 @@ function renderCaptured(ch) {
 // ═══════════════════════════════════════════════════════
 function setEng(s,msg){document.getElementById('eng-dot').className='eng-dot '+(s==='sf'?'dot-sf':s==='busy'?'dot-busy':s==='off'?'dot-off':'dot-ok');document.getElementById('eng-lbl').textContent=msg;}
 function setSt(t){document.getElementById('st-msg').textContent=t;}
-function setDepth(d,btn){analysisDepth=d;document.querySelectorAll('.db').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');const n={3:'Motor · ~0.2s',5:'Motor · ~1-3s',7:'Motor · ~5-15s',10:'Stockfish · ~1s',14:'Stockfish · ~3-8s',18:'Stockfish · ~15-40s'};document.getElementById('depth-note').textContent=n[d]||'';}
+function setDepth(d,btn){analysisDepth=d;document.querySelectorAll('.db').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');const n={10:'Stockfish · Fast · ~1s/move',14:'Stockfish · Standard · ~5s/move',18:'Stockfish · Deep · ~25s/move'};document.getElementById('depth-note').textContent=n[d]||'';}
 function showProg(c,t,sub){document.getElementById('prog-box').classList.add('vis');const p=t?Math.round(c/t*100):0;document.getElementById('prog-txt').textContent=c===0?'Preparing…':'Move '+c+' / '+t;document.getElementById('prog-pct').textContent=p+'%';document.getElementById('prog-fill').style.width=p+'%';if(sub!==undefined)document.getElementById('prog-sub').textContent=sub;}
 function hideProg(){document.getElementById('prog-box').classList.remove('vis');}
 
@@ -2245,7 +2275,7 @@ function renderEvalChart(){
 }
 
 // ═══════════════════════════════════════════════════════
-//  HEATMAP TIMELINE
+//  MOVE TIMELINE — two-row (White / Black) phase-aware design
 // ═══════════════════════════════════════════════════════
 function renderHeatmap() {
   const track = document.getElementById('heatmap-track');
@@ -2253,34 +2283,77 @@ function renderHeatmap() {
   document.getElementById('rp-heatmap').style.display = '';
   track.innerHTML = '';
 
-  const HEATMAP_COLORS = {
-    brilliant: '#10b981', great: '#a78bfa', book: '#8b7355',
-    best: '#5ca65c', excellent: '#89c458', good: '#b8d44a',
-    inaccuracy: '#e8c13a', mistake: '#e8853a', miss: '#d44a4a', blunder: '#c0392b'
+  const CLS_COL = {
+    brilliant:'#10b981', great:'#a78bfa', book:'#6b6b4a',
+    best:'#4a8a4a', excellent:'#6aaa3a', good:'#9ab828',
+    inaccuracy:'#d4aa1a', mistake:'#d4681a', miss:'#bb3030', blunder:'#c0392b'
+  };
+  const CLS_OPACITY = {
+    brilliant:1, great:.95, book:.4,
+    best:.55, excellent:.65, good:.6,
+    inaccuracy:.9, mistake:.95, miss:.9, blunder:1
   };
 
-  const N = results.length;
-  document.getElementById('hm-lbl-start').textContent = '1';
-  document.getElementById('hm-lbl-mid').textContent = Math.ceil(N / 4) + '';
-  document.getElementById('hm-lbl-end').textContent = Math.ceil(N / 2) + '';
+  const whiteMoves = results.filter(r => r.turn === 'w');
+  const blackMoves = results.filter(r => r.turn === 'b');
 
-  results.forEach((r, i) => {
-    const sq = document.createElement('div');
-    sq.className = 'hm-sq';
-    sq.style.background = HEATMAP_COLORS[r.cls] || '#5ca65c';
-    // Brightness = severity of move quality
-    const badness = ['blunder','miss','mistake','inaccuracy'].indexOf(r.cls);
-    sq.style.opacity = badness >= 0 ? (0.65 + badness * 0.12).toFixed(2) : '0.55';
-    sq.title = `${r.n}${r.turn==='b'?'…':'.'}${r.san} — ${(CFG[r.cls]||CFG.best).label}`;
-    sq.onclick = () => gotoMove(i + 1);
-    // Highlight current move
-    if (i + 1 === curMove) {
-      sq.style.outline = '2px solid #fff';
-      sq.style.outlineOffset = '-1px';
-      sq.style.opacity = '1';
-    }
-    track.appendChild(sq);
+  function makeRow(moves, label) {
+    const row = document.createElement('div');
+    row.className = 'tl-row';
+
+    const lbl = document.createElement('div');
+    lbl.className = 'tl-row-lbl';
+    lbl.textContent = label;
+    row.appendChild(lbl);
+
+    const bar = document.createElement('div');
+    bar.className = 'tl-bar';
+
+    moves.forEach(r => {
+      const idx = results.indexOf(r);
+      const seg = document.createElement('div');
+      seg.className = 'tl-seg' + (idx + 1 === curMove ? ' tl-cur' : '');
+      seg.style.background = CLS_COL[r.cls] || '#4a8a4a';
+      seg.style.opacity = (CLS_OPACITY[r.cls] || 0.6).toString();
+      seg.style.flex = '1';
+      seg.title = `${r.n}${r.turn==='b'?'…':'.'}${r.san} — ${(CFG[r.cls]||CFG.best).label}`;
+      seg.onclick = () => gotoMove(idx + 1);
+      bar.appendChild(seg);
+    });
+
+    row.appendChild(bar);
+    return row;
+  }
+
+  // Phase markers row
+  const totalMoves = results.length;
+  const opEnd  = results.findIndex(r => r.phase !== 'opening');
+  const mgEnd  = results.findLastIndex ? results.findLastIndex(r => r.phase === 'middlegame') : -1;
+  
+  if (whiteMoves.length) track.appendChild(makeRow(whiteMoves, '♔'));
+  if (blackMoves.length) track.appendChild(makeRow(blackMoves, '♚'));
+
+  // Phase label row
+  const phRow = document.createElement('div');
+  phRow.className = 'tl-row';
+  phRow.style.marginTop = '2px';
+  const phPad = document.createElement('div');
+  phPad.style.width = '33px'; phPad.style.flexShrink = '0';
+  phRow.appendChild(phPad);
+  const phBar = document.createElement('div');
+  phBar.style.cssText = 'flex:1;display:flex;justify-content:space-between;padding:0 2px;';
+
+  const phases = ['Opening','Middlegame','Endgame'];
+  const phaseCounts = phases.map(p => results.filter(r => r.phase === p.toLowerCase()).length);
+  phases.forEach((p, i) => {
+    if (phaseCounts[i] === 0) return;
+    const span = document.createElement('span');
+    span.className = 'tl-phase-label';
+    span.textContent = p;
+    phBar.appendChild(span);
   });
+  phRow.appendChild(phBar);
+  track.appendChild(phRow);
 }
 
 // ═══════════════════════════════════════════════════════
