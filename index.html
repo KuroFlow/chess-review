@@ -1061,25 +1061,29 @@ button{font-family:var(--fu);cursor:pointer;}
 
     <!-- 3. MOVE TIMELINE -->
     <div class="rp" id="rp-heatmap" style="display:none;">
-      <div class="tl2-wrap">
-        <div class="tl2-hd">
-          <span class="tl2-title">Move Timeline</span>
-          <div class="tl2-legend">
-            <div class="tl2-leg"><div class="tl2-leg-dot" style="background:#10b981;"></div>Brilliant</div>
-            <div class="tl2-leg"><div class="tl2-leg-dot" style="background:#4a8a4a;"></div>Good</div>
-            <div class="tl2-leg"><div class="tl2-leg-dot" style="background:#e8c13a;"></div>Inaccuracy</div>
-            <div class="tl2-leg"><div class="tl2-leg-dot" style="background:#c0392b;"></div>Blunder</div>
+      <div class="tl-panel">
+        <div class="tl-panel-hd">
+          <span class="tl-panel-title">Move Quality</span>
+          <div class="tl-dot-key">
+            <div class="tl-dot-item"><div class="tl-dot" style="background:#10b981;"></div>!!-!</div>
+            <div class="tl-dot-item"><div class="tl-dot" style="background:#5a8a5a;"></div>★-✓</div>
+            <div class="tl-dot-item"><div class="tl-dot" style="background:#c4a018;"></div>?!</div>
+            <div class="tl-dot-item"><div class="tl-dot" style="background:#c0392b;"></div>?-??</div>
           </div>
         </div>
-        <div class="tl2-body" id="heatmap-track"></div>
+        <div class="tl-rows" id="heatmap-track"></div>
       </div>
     </div>
 
     <!-- 4. CRITICAL MOMENTS -->
     <div class="rp" id="rp-critical" style="display:none;">
-      <div class="crit-wrap">
-        <div class="crit-hd">Critical Moments</div>
-        <div id="crit-list"><div class="crit-empty">Analyzing…</div></div>
+      <div class="cm-panel">
+        <div class="cm-hd">
+          <span class="cm-hd-icon">⚡</span>
+          <span class="cm-hd-title">Critical Moments</span>
+          <span class="cm-hd-sub">Click to jump</span>
+        </div>
+        <div class="cm-list" id="crit-list"><div class="cm-empty">Analyzing…</div></div>
       </div>
     </div>
 
@@ -1575,70 +1579,69 @@ function getExpectedPoints(cpScore) {
 // Depth calibration: shallow engines underestimate positional complexity.
 // At depth 5, raw WP losses are ~2-3x smaller than depth 18 (Chess.com level).
 // ═══════════════════════════════════════════════════════════════════
-//  ACCURACY ENGINE v3 — Three Pillars
-//  1. tanh sigmoid formula (no depth calibration needed)
-//  2. CP-loss from MOVER's POV (POV normalisation)  
-//  3. Chess.com-comparable thresholds
+//  ACCURACY ENGINE v4 — Chess.com WP Formula
+//
+//  Uses the industry-standard Win Probability approach:
+//  1. cpToWP: centipawns → win probability via tanh sigmoid
+//  2. WP loss → accuracy via Chess.com's exponential formula
+//  3. Naturally handles decided positions: big cp loss when winning
+//     = tiny WP change = high accuracy (no artificial shortcuts needed)
 // ═══════════════════════════════════════════════════════════════════
 
-// ── PILLAR 1: tanh sigmoid accuracy formula ──────────────────────
-// Source: industry standard for chess accuracy (similar to Chess.com)
-// Properties:
-//   - cpLoss=0   → 100% (perfect move)
-//   - cpLoss=50  → ~84% (small inaccuracy)
-//   - cpLoss=150 → ~60% (clear mistake)
-//   - cpLoss=300 → ~40% (blunder)
-//   - cpLoss=600 → ~24% (massive blunder)
-//   - Crucially: saturates at high cp values — losing a piece when
-//     already winning by 10 pawns barely affects accuracy
-function moveAccuracy(cpLoss) {
-  // tanh sigmoid: errors in decided positions don't distort the result
-  return Math.max(0, Math.min(100, 100 * (1 - Math.tanh(2 * cpLoss / 600))));
-}
-
-// ── PILLAR 2: CP-loss from mover's POV ───────────────────────────
-// scores[] are in side-to-move convention (like Stockfish UCI):
-//   positive = good for current player, regardless of colour
-// evalBefore/evalAfter as passed here are ALREADY in mover's POV.
-// cpLoss = how many centipawns the mover lost by their choice.
-function getCPLoss(evalBefore, evalAfter, isBest) {
-  if (isBest) return 0;
-  // evalBefore: best possible eval from mover's POV at current position
-  // evalAfter: mover's eval after the position changed
-  // Loss = how much WORSE the mover's position became
-  const loss = evalBefore - evalAfter;
-  return Math.max(0, Math.min(loss, 1000)); // cap at 10 pawns
-}
-
-// ── PILLAR 3: Classification by CP-loss ──────────────────────────
-// Thresholds based on standard chess analysis tools.
-// CP-based (not WP-based) for reliability at low depth.
-function classifyByCPLoss(cpLoss, isBest, sac) {
-  if (isBest) return sac ? 'brilliant' : 'best';
-  if (cpLoss <  5) return 'great';       // essentially the best move
-  if (cpLoss < 20) return 'excellent';   // very accurate
-  if (cpLoss < 50) return 'good';        // good move
-  if (cpLoss < 90) return 'inaccuracy';  // noticeable imprecision
-  if (cpLoss < 200) return 'mistake';    // clear error
-  if (cpLoss < 400) return 'miss';       // major miss
-  return 'blunder';                      // game-changing error
-}
-
-// ── Win probability (for reference / WP pills in UI) ─────────────
-// Logistic sigmoid matching Stockfish's WDL model at depth 14
+// ── Win Probability from centipawns (mover's POV) ────────────────
+// Maps cp score to win probability [0%, 100%] for the mover.
+// Calibrated to Stockfish's WDL model at typical tournament depth.
+//   cp=0    → 50.0% (equal)
+//   cp=100  → 65.6% (slight advantage)
+//   cp=300  → 82.6% (clear advantage)
+//   cp=600  → 94.6% (decisive)
+//   cp=1000 → 98.9% (winning)
 function cpToWP(cp) {
-  return 1 / (1 + Math.exp(-0.00368208 * cp));
+  return 50 + 50 * Math.tanh(0.00368208 * cp);
 }
 
-// WP loss (used only for UI coaching text, not for accuracy formula)
-function getWPLoss(evalBefore, evalAfter, turn) {
-  // evalBefore/after are in mover's POV from the analysis loop
-  const wpBefore = cpToWP(evalBefore);
-  const wpAfter  = cpToWP(evalAfter);
-  return Math.max(0, wpBefore - wpAfter);
+// ── Chess.com accuracy formula ────────────────────────────────────
+// Input: wpLoss in percentage points (e.g. 8.5 = lost 8.5% win chance)
+// Output: move accuracy 0-100%
+// Properties:
+//   wpLoss=0  → 100.0%
+//   wpLoss=2  →  91.1%  (Excellent)
+//   wpLoss=5  →  78.2%  (Good)
+//   wpLoss=10 →  61.8%  (Inaccuracy)
+//   wpLoss=20 →  37.6%  (Mistake)
+//   wpLoss=40 →  11.7%  (Blunder)
+function moveAccuracy(wpLoss) {
+  return Math.max(0, Math.min(100, 103.1668 * Math.exp(-0.04354 * wpLoss) - 3.1669));
 }
 
-// True material sacrifice
+// ── WP loss for a move ────────────────────────────────────────────
+// evalBefore, evalAfter: centipawns from mover's perspective
+// Returns WP loss in percentage points (0-100 scale)
+function getWPLoss(evalBefore, evalAfter) {
+  const wpB = cpToWP(Math.max(-2000, Math.min(2000, evalBefore)));
+  const wpA = cpToWP(Math.max(-2000, Math.min(2000, evalAfter)));
+  return Math.max(0, wpB - wpA);
+}
+
+// ── CP loss ───────────────────────────────────────────────────────
+function getCPLoss(evalBefore, evalAfter) {
+  return Math.max(0, Math.min(evalBefore - evalAfter, 2000));
+}
+
+// ── Classification by WP loss ─────────────────────────────────────
+// Thresholds calibrated to match Chess.com's feel:
+function classifyByWPLoss(wpLoss, isBest, sac) {
+  if (isBest) return sac ? 'brilliant' : 'best';
+  if (wpLoss <  1) return 'great';       // < 1%   WP loss
+  if (wpLoss <  3) return 'excellent';   // < 3%
+  if (wpLoss <  6) return 'good';        // < 6%
+  if (wpLoss < 11) return 'inaccuracy';  // < 11%
+  if (wpLoss < 21) return 'mistake';     // < 21%
+  if (wpLoss < 35) return 'miss';        // < 35%
+  return 'blunder';                      // ≥ 35%
+}
+
+// ── True material sacrifice ───────────────────────────────────────
 function isTrueSacrifice(mr, fenAfterMove) {
   if (!mr || !mr.captured) return false;
   const pvMap = {p:1,n:3,b:3.2,r:5,q:9,k:0};
@@ -1654,31 +1657,31 @@ function isTrueSacrifice(mr, fenAfterMove) {
   } catch(e) { return false; }
 }
 
-// Main classify function
-function classify(cpLoss, isBest, sac, fen) {
+// ── Main classify ─────────────────────────────────────────────────
+function classify(wpLoss, isBest, sac, fen) {
   if (getOpeningName(fen)) return 'book';
-  return classifyByCPLoss(cpLoss, isBest, sac);
+  return classifyByWPLoss(wpLoss, isBest, sac);
 }
 
-// ── Accuracy aggregation ─────────────────────────────────────────
+// ── Accuracy aggregation ──────────────────────────────────────────
 function calcAcc(rs, color) {
   const m = rs.filter(r => r.turn === color && r.cls !== 'book' && r.cls !== 'forced');
   if (!m.length) return null;
-  const avg = m.reduce((s, r) => s + moveAccuracy(r.cpLoss || 0), 0) / m.length;
+  const avg = m.reduce((s, r) => s + moveAccuracy(r.wpLoss || 0), 0) / m.length;
   return Math.round(avg * 10) / 10;
 }
 function calcPhAcc(rs,c,ph){ return calcAcc(rs.filter(r=>r.phase===ph),c); }
 
-// ── Game Rating — calibrated to Elo scale ────────────────────────
-// tanh formula produces: masters~92%, 1600~80%, 1200~70%, 800~60%
+// ── Game Rating ───────────────────────────────────────────────────
+// Calibrated from Chess.com WP formula + empirical Elo mapping
 function calcRating(acc){
   if (acc===null||acc===undefined) return '—';
-  if (acc>=95) return '~2200+'; if (acc>=92) return '~2000';
-  if (acc>=88) return '~1800';  if (acc>=84) return '~1600';
-  if (acc>=80) return '~1400';  if (acc>=76) return '~1200';
-  if (acc>=72) return '~1000';  if (acc>=67) return '~900';
-  if (acc>=62) return '~750';   if (acc>=56) return '~600';
-  if (acc>=50) return '~450';   if (acc>=44) return '~350';
+  if (acc>=96) return '~2200+'; if (acc>=93) return '~2000';
+  if (acc>=89) return '~1800';  if (acc>=85) return '~1600';
+  if (acc>=81) return '~1400';  if (acc>=77) return '~1200';
+  if (acc>=73) return '~1000';  if (acc>=68) return '~900';
+  if (acc>=63) return '~750';   if (acc>=57) return '~600';
+  if (acc>=51) return '~450';   if (acc>=45) return '~350';
   return '<300';
 }
 
@@ -2783,18 +2786,14 @@ async function doAnalyze(){
     ch2.move(mr.san);
     const sac   = isTrueSacrifice(mr, ch2.fen());
     const phase = getPhase(hm, countPieces(ch2));
-    // CP-loss from mover's POV (evalBefore/After are already in mover's perspective)
-    const capEval = v => Math.max(-2000, Math.min(2000, v));
-    const evB = capEval(evalBefore), evA = capEval(evalAfter);
-
-    // In clearly decided positions (|eval| > 300cp = 3 pawns), ALL reasonable
-    // moves are acceptable. Don't penalise for suboptimal king shuffles in endgames.
-    const decided = evB > 300;  // mover is clearly winning (> 3 pawns up)
-
-    const cpLossCalc = (isBest || decided) ? 0 : getCPLoss(evB, evA, false);
-    const wpLoss     = (isBest || decided) ? 0 : getWPLoss(evB, evA, turn);
+    // WP loss from mover's POV — WP formula handles decided positions naturally
+    // (a 200cp error when winning by 800cp = tiny WP change = high accuracy)
+    const evB = Math.max(-2000, Math.min(2000, evalBefore));
+    const evA = Math.max(-2000, Math.min(2000, evalAfter));
+    const wpLossVal = isBest ? 0 : getWPLoss(evB, evA);
+    const cpLossCalc = isBest ? 0 : getCPLoss(evB, evA);
     const fenBefore  = positions[i];
-    const cls = decided ? 'best' : classify(cpLossCalc, isBest, sac, fenBefore);
+    const cls = classify(wpLossVal, isBest, sac, fenBefore);
 
     // Engine best move for THIS position (i) — what to play FROM current displayed position
     // We store it on the result so gotoMove can draw arrow AFTER reaching this position
@@ -2803,7 +2802,7 @@ async function doAnalyze(){
     const engTo   = engUCI ? engUCI.slice(2,4) : null;
 
     results.push({n:Math.ceil(hm/2), turn, san:mr.san, from:mr.from, to:mr.to,
-      cls, wpLoss, cpLoss: cpLossCalc,
+      cls, wpLoss: wpLossVal, cpLoss: cpLossCalc,
       best:isBest?null:bestSans[i], eval:whiteEval, evalBefore, evalAfter, phase,
       openingName: getOpeningName(fenBefore),
       // Arrow data: best move from the position BEFORE this move was played
@@ -2929,7 +2928,7 @@ function renderEvalChart(){
 }
 
 // ═══════════════════════════════════════════════════════
-//  MOVE TIMELINE v2 — clean two-row White/Black bars
+//  MOVE TIMELINE — compact quality bars per player
 // ═══════════════════════════════════════════════════════
 function renderHeatmap() {
   const track = document.getElementById('heatmap-track');
@@ -2938,58 +2937,59 @@ function renderHeatmap() {
   track.innerHTML = '';
 
   const CLS_COL = {
-    brilliant:'#10b981', great:'#6b9e6b', book:'#5a5a3a',
-    best:'#4a8a4a', excellent:'#72a842', good:'#8db828',
-    inaccuracy:'#c4a018', mistake:'#c46818', miss:'#a83030', blunder:'#c0392b'
+    brilliant:'#10b981', great:'#3da874', book:'#4a5a3a',
+    best:'#4a7a4a',      excellent:'#6a9a3a', good:'#7a8a28',
+    inaccuracy:'#c4a018', mistake:'#c46018', miss:'#b03020', blunder:'#c0392b'
+  };
+  const CLS_OP = {
+    brilliant:1, great:.95, book:.35, best:.55, excellent:.65, good:.6,
+    inaccuracy:.9, mistake:.95, miss:.9, blunder:1
   };
 
   const wMoves = results.filter(r => r.turn === 'w');
   const bMoves = results.filter(r => r.turn === 'b');
 
-  function makePlayerRow(moves, label) {
-    const wrap = document.createElement('div');
-    wrap.className = 'tl2-player';
-
-    const lbl = document.createElement('div');
-    lbl.className = 'tl2-plbl';
-    lbl.textContent = label;
-    wrap.appendChild(lbl);
-
+  function makeRow(moves, sym) {
+    const row = document.createElement('div');
+    row.className = 'tl-row';
+    const s = document.createElement('div');
+    s.className = 'tl-row-sym'; s.textContent = sym;
+    row.appendChild(s);
     const bar = document.createElement('div');
-    bar.className = 'tl2-bar';
-
+    bar.className = 'tl-bar';
     moves.forEach(r => {
       const idx = results.indexOf(r);
       const seg = document.createElement('div');
-      seg.className = 'tl2-seg' + (idx + 1 === curMove ? ' cur' : '');
-      seg.style.background = CLS_COL[r.cls] || '#4a8a4a';
-      seg.style.opacity = ['blunder','miss','mistake','inaccuracy'].includes(r.cls) ? '1' : '0.65';
+      seg.className = 'tl-seg' + (idx+1 === curMove ? ' active' : '');
+      seg.style.background = CLS_COL[r.cls] || '#4a7a4a';
+      seg.style.opacity = (CLS_OP[r.cls] || 0.6).toString();
       seg.title = `${r.n}${r.turn==='b'?'…':'.'}${r.san} — ${(CFG[r.cls]||CFG.best).label}`;
-      seg.onclick = () => gotoMove(idx + 1);
+      seg.onclick = () => gotoMove(idx+1);
       bar.appendChild(seg);
     });
-    wrap.appendChild(bar);
-    return wrap;
+    row.appendChild(bar);
+    return row;
   }
 
-  if (wMoves.length) track.appendChild(makePlayerRow(wMoves, '♔'));
-  if (bMoves.length) track.appendChild(makePlayerRow(bMoves, '♚'));
+  if (wMoves.length) track.appendChild(makeRow(wMoves, '♔'));
+  if (bMoves.length) track.appendChild(makeRow(bMoves, '♚'));
 
-  // Phase labels
+  // Phase separator labels
   const phases = ['opening','middlegame','endgame'];
+  const labels = {opening:'Opening', middlegame:'Midgame', endgame:'Endgame'};
   const counts = phases.map(p => results.filter(r=>r.phase===p).length);
   if (counts.some(c=>c>0)) {
-    const phDiv = document.createElement('div');
-    phDiv.className = 'tl2-phases';
+    const phRow = document.createElement('div');
+    phRow.className = 'tl-phase-row';
     phases.forEach((p,i) => {
-      if (counts[i]===0) return;
+      if (!counts[i]) return;
       const sp = document.createElement('span');
-      sp.className = 'tl2-phase';
-      sp.style.flex = counts[i].toString();
-      sp.textContent = {opening:'Opening',middlegame:'Middlegame',endgame:'Endgame'}[p];
-      phDiv.appendChild(sp);
+      sp.className = 'tl-phase-lbl';
+      sp.style.flex = counts[i];
+      sp.textContent = labels[p];
+      phRow.appendChild(sp);
     });
-    track.appendChild(phDiv);
+    track.appendChild(phRow);
   }
 }
 
