@@ -1042,6 +1042,9 @@ button{font-family:var(--fu);cursor:pointer;}
     <!-- 2. ACCURACY -->
     <div class="rp" id="rp-acc">
       <div class="rp-t">Accuracy</div>
+      <div id="acc-warning" style="display:none;background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.2);border-radius:6px;padding:6px 9px;margin-bottom:7px;font-size:10px;color:#fbbf24;line-height:1.4;">
+        ⚠️ Estimated — load Stockfish for precise accuracy
+      </div>
       <div class="acc-row">
         <div class="acc-c">
           <div class="acc-p" id="acc-pn-w">White</div>
@@ -2650,6 +2653,26 @@ function setEval(score) {
 async function doAnalyze(){
   if(typeof Chess==='undefined'){setSt('Error: chess.js failed to load.');return;}
   if(mode!=='analyze')setMode('analyze');
+
+  // ── Wait for Stockfish (up to 15s) before analyzing ──────────────
+  if (!usingStockfish && !sfLoading) {
+    setSt('⚡ Loading Stockfish… (this takes ~5s)');
+    loadStockfish().catch(() => {});
+  }
+  if (!usingStockfish && sfLoading) {
+    setSt('⏳ Waiting for Stockfish to load…');
+    setEng('busy', 'Loading engine…');
+    const waitStart = Date.now();
+    while (sfLoading && !usingStockfish && Date.now() - waitStart < 15000) {
+      await new Promise(r => setTimeout(r, 300));
+      const elapsed = Math.round((Date.now() - waitStart) / 1000);
+      setSt(`⏳ Loading Stockfish… ${elapsed}s`);
+    }
+  }
+  const sfReady = usingStockfish && sfWorker;
+  if (!sfReady) {
+    setSt('⚠️ Stockfish unavailable — accuracy will be estimated only. Check your connection and try again.');
+  }
   const pgn=document.getElementById('pgn-in').value.trim();
   if(!pgn){setSt('Please paste a PGN above first.');return;}
   // ── PGN Preprocessing ───────────────────────────────────────────
@@ -2761,12 +2784,17 @@ async function doAnalyze(){
     const sac   = isTrueSacrifice(mr, ch2.fen());
     const phase = getPhase(hm, countPieces(ch2));
     // CP-loss from mover's POV (evalBefore/After are already in mover's perspective)
-    // Cap mate scores for CP arithmetic
     const capEval = v => Math.max(-2000, Math.min(2000, v));
-    const cpLossCalc = isBest ? 0 : getCPLoss(capEval(evalBefore), capEval(evalAfter), false);
-    const wpLoss = isBest ? 0 : getWPLoss(capEval(evalBefore), capEval(evalAfter), turn);
-    const fenBefore = positions[i];
-    const cls = classify(cpLossCalc, isBest, sac, fenBefore);
+    const evB = capEval(evalBefore), evA = capEval(evalAfter);
+
+    // In clearly decided positions (|eval| > 300cp = 3 pawns), ALL reasonable
+    // moves are acceptable. Don't penalise for suboptimal king shuffles in endgames.
+    const decided = evB > 300;  // mover is clearly winning (> 3 pawns up)
+
+    const cpLossCalc = (isBest || decided) ? 0 : getCPLoss(evB, evA, false);
+    const wpLoss     = (isBest || decided) ? 0 : getWPLoss(evB, evA, turn);
+    const fenBefore  = positions[i];
+    const cls = decided ? 'best' : classify(cpLossCalc, isBest, sac, fenBefore);
 
     // Engine best move for THIS position (i) — what to play FROM current displayed position
     // We store it on the result so gotoMove can draw arrow AFTER reaching this position
@@ -2790,7 +2818,14 @@ async function doAnalyze(){
     results._finalArrowTo=fu.slice(2,4);
   }
   hideProg();document.getElementById('btn-cancel').style.display='none';document.getElementById('btn-analyze').style.display='';
-  setEng(usingStockfish?'sf':'ok',usingStockfish?'Stockfish ✓':'Engine ✓');
+  if (usingStockfish) {
+    setEng('sf', 'Stockfish ✓');
+  } else {
+    setEng('ok', '⚠️ Internal engine');
+    // Show accuracy warning in accuracy panel
+    const accWarn = document.getElementById('acc-warning');
+    if (accWarn) accWarn.style.display = '';
+  }
 
   try {
     const accW=calcAcc(results,'w'),accB=calcAcc(results,'b');
@@ -3244,6 +3279,7 @@ function doReset(){
   document.getElementById('pgn-in').value='';document.getElementById('mv-list').innerHTML='';
   document.getElementById('ev-svg').innerHTML='';
   document.getElementById('rp-heatmap').style.display='none';
+  const aw=document.getElementById('acc-warning');if(aw)aw.style.display='none';
   document.getElementById('rp-critical').style.display='none';
   document.getElementById('heatmap-track').innerHTML='';
   document.getElementById('crit-list').innerHTML='<div class="crit-empty">Analyzing…</div>';
@@ -3503,7 +3539,7 @@ setTimeout(() => {
       sfLoading = false;
     })();
   }
-}, 1500); // Start loading 1.5s after page open (let other resources load first)
+}); // Start loading immediately on page open
 
 </script>
 </body>
